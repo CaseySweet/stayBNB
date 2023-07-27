@@ -1,4 +1,4 @@
-# `AirBnb API ENDPOINTS`
+# `stayBNB API ENDPOINTS`
 
 ## Database Schema Design
 
