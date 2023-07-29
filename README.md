@@ -1,1 +1,1 @@
-![stayBNBSchema](https://github.com/CaseySweet/stayBNB/assets/120260407/32a76f54-6179-4644-9b43-1f91674db9a9)
+![stayBNBSchema](https://github.com/CaseySweet/stayBNB/assets/120260407/1bc42ef0-1f41-4f4d-baa3-3f5ae7006a98)
