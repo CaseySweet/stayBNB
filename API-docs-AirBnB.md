@@ -2,7 +2,8 @@
 
 ## Database Schema Design
 
-https://dbdiagram.io/d/64a6db2d02bd1c4a5e9fa110
+![stayBNBSchema](https://github.com/CaseySweet/stayBNB/assets/120260407/ca4bd7b5-bfb3-4cdd-b12a-441fa7472f4b)
+
 
 ## API Documentation
 
