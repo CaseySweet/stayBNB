@@ -2,7 +2,8 @@
 
 ## Database Schema Design
 
-![stayBNBSchema](https://github.com/CaseySweet/stayBNB/assets/120260407/ca4bd7b5-bfb3-4cdd-b12a-441fa7472f4b)
+![Screenshot 2023-07-30 at 6 44 11 PM](https://github.com/CaseySweet/stayBNB/assets/120260407/d01ad998-c2eb-4185-8188-94690691b906)
+
 
 
 ## API Documentation
