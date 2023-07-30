@@ -1,1 +1,2 @@
-![stayBNBSchema](https://github.com/CaseySweet/stayBNB/assets/120260407/1bc42ef0-1f41-4f4d-baa3-3f5ae7006a98)
+
+![Screenshot 2023-07-30 at 6 44 11 PM](https://github.com/CaseySweet/stayBNB/assets/120260407/5631f73c-f9e5-4416-9e57-bdcb065c1983)
