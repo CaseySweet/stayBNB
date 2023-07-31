@@ -2,7 +2,8 @@
 
 ## Database Schema Design
 
-![Screenshot 2023-07-30 at 6 44 11 PM](https://github.com/CaseySweet/stayBNB/assets/120260407/d01ad998-c2eb-4185-8188-94690691b906)
+![Screenshot 2023-07-31 at 6 57 02 PM](https://github.com/CaseySweet/stayBNB/assets/120260407/fd831197-0648-402c-a838-338508bc9ca1)
+
 
 
 
