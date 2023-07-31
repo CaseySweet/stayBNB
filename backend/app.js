@@ -9,6 +9,8 @@ require('express-async-errors');
 
 // --- INTERNAL IMPORTS ---
 const { environment } = require('./config');
+const routes = require('./routes');
+
 const isProduction = environment === 'production';
 
 // --- INITIALIZE THE APP ---
@@ -37,7 +39,9 @@ app.use(
     })
 );
 // --- ROUTES ---
+app.use(routes);
 
 // --- ERROR HANDLING MIDDLEWARE ---
 
 // --- EXPORTS ---
+module.exports = app;
