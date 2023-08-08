@@ -37,6 +37,13 @@ module.exports = {
       price: {
         type: Sequelize.INTEGER
       },
+      ownerId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'id',
+        }
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
