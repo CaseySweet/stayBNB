@@ -9,26 +9,43 @@ router.get('/', async (req, res) => {
 })
 // Post a spot
 router.post('/', async (req, res) => {
-    const { address, city, state, country, lat, lng, name, description, price } = req.body;
-    const user = req.user.id
-    const spot = await Spot.create({ address, city, state, country, lat, lng, name, description, price, ownerId: user });
-    return res.json({
-        spot: spot
-    })
+    try {
+        const { address, city, state, country, lat, lng, name, description, price } = req.body;
+        if (address === '' || city === '' || state === '' || country === '' || lat === '' || lng === '' || name === '' || description === '' || price === '') {
+            throw new Error('Missing information to create a spot.')
+        }
+
+        const user = req.user.id
+
+        const spot = await Spot.create({ address, city, state, country, lat, lng, name, description, price, ownerId: user });
+        return res.json({
+            spot: spot
+        })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
 })
 
 
 
 // ----- THIS IS FOR GET SPOTS OF CURRENT USER -----
 router.get('/currentUser', async (req, res) => {
-    const { user } = req
+    try {
+        const { user } = req
 
-    const spots = await Spot.findAll({
-        where: {
-            ownerId: user.id
+        if(user === null){
+            throw new Error('There is no user signed in.')
         }
-    })
-    res.json(spots)
+
+        const spots = await Spot.findAll({
+            where: {
+                ownerId: user.id
+            }
+        })
+        res.json(spots)
+    } catch (error) {
+        res.status(500).json({error: error.message})
+    }
 })
 
 module.exports = router;
