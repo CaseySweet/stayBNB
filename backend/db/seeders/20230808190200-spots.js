@@ -71,10 +71,9 @@ module.exports = {
       }
     ], {});
   },
-
   async down(queryInterface, Sequelize) {
     options.tableName = 'Spots';
-    const Op = Sequelize.op;
+    const Op = Sequelize.Op;
     return queryInterface.bulkDelete(options, {
       name: { [Op.in]: ['The Sunset','The Ultimate Escape','Cozy Cool Cabin','The Perfect Retreat','The Brooklyn Penthouse']}
     }, {});
