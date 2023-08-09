@@ -8,6 +8,7 @@ if (process.env.NODE_ENV === 'production') {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+    options.tableName = 'Spots';
     /**
      * Add seed commands here.
      *
@@ -17,7 +18,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-    await queryInterface.bulkInsert('Spots', [
+    return queryInterface.bulkInsert('Spots', [
       {
         name: 'The Sunset',
         description: 'Nice tiny home on the beach.',
@@ -88,7 +89,7 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    options.tableName = 'Spots'
+    options.tableName = 'Spots';
     return queryInterface.bulkDelete(options, null, {});
   }
 };
