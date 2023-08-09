@@ -24,9 +24,9 @@ router.get('/currentUser', async (req, res) => {
 
 // Details of a post by id
 router.get('/:id', async (req, res) => {
-    try{
+    try {
         const { id } = req.params;
-        if(id === undefined || id === null || id === ''){
+        if (id === undefined || id === null || id === '') {
             throw new Error('Not a valid spot id.')
         }
         const spot = await Spot.findOne({
@@ -34,22 +34,22 @@ router.get('/:id', async (req, res) => {
                 id: id
             }
         })
-        if(!spot){
+        if (!spot) {
             throw new Error('Spot was not found.')
         }
         res.json(spot)
-    }catch(error){
+    } catch (error) {
         res.status(500).json({ error: error.message })
     }
 })
 
 // Edit a spot
 router.put('/:id', async (req, res) => {
-    try{
+    try {
         const { id } = req.params;
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
-        if(id === undefined || id === null || id === ''){
+        if (id === undefined || id === null || id === '') {
             throw new Error('Not a valid spot id.')
         }
         const spot = await Spot.findOne({
@@ -57,9 +57,9 @@ router.put('/:id', async (req, res) => {
                 id: id
             }
         })
-        if(!spot){
+        if (!spot) {
             throw new Error('Spot was not found.')
-        }else{
+        } else {
             if (address) spot.address = address;
             if (city) spot.city = city;
             if (state) spot.state = state;
@@ -73,15 +73,16 @@ router.put('/:id', async (req, res) => {
             await spot.save();
         }
         res.json(spot)
-    }catch(error){
+    } catch (error) {
         res.status(500).json({ error: error.message })
     }
 })
+
 // Delete a spot
-router.delete('/:id', async (req, res) =>{
-    try{
+router.delete('/:id', async (req, res) => {
+    try {
         const { id } = req.params;
-        if(id === undefined || id === null || id === ''){
+        if (id === undefined || id === null || id === '') {
             throw new Error('Not a valid spot id.')
         }
         const spot = await Spot.findOne({
@@ -89,14 +90,14 @@ router.delete('/:id', async (req, res) =>{
                 id: id
             }
         })
-        if(!spot){
+        if (!spot) {
             throw new Error('Spot was not found.')
-        }else{
+        } else {
             await spot.destroy()
-            res.json({ message: 'Spot deleted.'})
+            res.json({ message: 'Spot deleted.' })
         }
         res.json(spot)
-    }catch(error){
+    } catch (error) {
         res.status(500).json({ error: error.message })
     }
 })
