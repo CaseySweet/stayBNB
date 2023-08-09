@@ -18,7 +18,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-    return queryInterface.bulkInsert('Spots', [
+    return queryInterface.bulkInsert(options, [
       {
         name: 'The Sunset',
         description: 'Nice tiny home on the beach.',
