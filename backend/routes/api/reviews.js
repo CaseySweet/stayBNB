@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { Review } = require('../../db/models');
+const { Spot } = require('../../db/models')
 
 // Gets currentUser reviews
 
@@ -21,7 +22,7 @@ router.get('/currentUser/reviews', async (req, res) => {
         res.json(reviews)
 
     } catch (error) {
-        res.status(500).json({ error: error.message})
+        res.status(500).json({ error: error.message })
     }
 })
 
@@ -35,51 +36,56 @@ router.get('/spots/:id/reviews', async (req, res) => {
             throw new Error('Not a valid spot id.')
         }
 
-        const review = await Review.findOne({
+        const spot = await Spot.findOne({
             where: {
                 id: id
             }
         });
 
-        res.json(review)
+        if (!spot) {
+            throw new Error('Spot not found.')
+        }
 
+        const reviews = await Review.findAll({
+            where: {
+                spotId: spot.id
+            }
+        })
+        res.json(reviews)
     } catch (error) {
-        res.status(500).json({ error: error.message})
+        res.status(500).json({ error: error.message })
     }
 })
 
 // Make review for spot off spots id
 //CHECK URL CHANGE IT
-router.post('/spots/:id/reviews', async (res, req) => {
+router.post('/spots/:id/reviews', async (req, res) => {
     try {
         const { id } = req.params;
         const { review, stars } = req.body;
 
-        if (id === undefined || id === null || id === '') {
-            throw new Error('Not a valid spot id.')
-        }
-        else if(review === undefined || ''){
-            throw new Error('Invalid review')
-        }
-        else if(stars === undefined || ''){
-            throw new Error('Invalid stars')
-        }else {
-
-
-            const user = req.user.id
-            // const spot = req.spot.id
-
-            const reviews = await Review.create({
-                review, stars, ownerId: user, spotId: id
-            });
-
-            return res.json({
-                review: reviews
-            })
+        if (!id || !review || !stars) {
+            throw new Error('Missing information to create a review.')
         }
 
+        const spot = await Spot.findOne({
+            where: {
+                id: id
+            }
+        })
+
+        if (!spot) {
+            throw new Error('Spot not found.')
+        }
+
+        user = req.user.id;
+
+        const newReview = await Review.create({ review, stars, spotId: spot.id, userId: user })
+        res.json({
+            review: newReview
+        })
     } catch (error) {
-        res.status(500).json({ error: error.message})
+        res.status(500).json({ error: error.message })
     }
 })
 
