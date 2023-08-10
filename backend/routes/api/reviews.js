@@ -89,5 +89,65 @@ router.post('/spots/:id/reviews', async (req, res) => {
     }
 })
 
+//Edit a review
+router.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        const { review, stars } = req.body;
+
+        if (!id || !review || !stars) {
+            throw new Error('Missing information to create a review.')
+        }
+
+        const findReview = await Review.findOne({
+            where: {
+                id: id
+            }
+        })
+
+        if (!findReview) {
+            throw new Error('Review was not found.')
+        }
+
+        if (review) findReview.review = review
+        if (stars) findReview.stars = stars
+
+        await findReview.save()
+
+        res.json(findReview)
+
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+
+    }
+})
+
+//Delete a review
+router.delete('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (id === undefined || id === null || id === '') {
+            throw new Error('Not a valid review id.')
+        }
+
+        const review = await Review.findOne({
+            where: {
+                id: id
+            }
+        })
+
+        if (!review) {
+            throw new Error('Review was not found.')
+        } else {
+            await review.destroy();
+            res.json({ message: 'Review deleted.' })
+        }
+        res.json(review)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
 
 module.exports = router;
