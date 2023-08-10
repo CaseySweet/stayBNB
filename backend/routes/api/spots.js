@@ -49,6 +49,7 @@ router.put('/:id', async (req, res) => {
         const { id } = req.params;
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
+
         if (id === undefined || id === null || id === '') {
             throw new Error('Not a valid spot id.')
         }
@@ -57,6 +58,7 @@ router.put('/:id', async (req, res) => {
                 id: id
             }
         })
+
         if (!spot) {
             throw new Error('Spot was not found.')
         } else {
