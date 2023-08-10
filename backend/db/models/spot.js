@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'ownerId',
         onDelete: 'CASCADE',
       })
+      Spot.hasMany(models.Review, {
+        foreignKey: 'spotId',
+        onDelete: 'CASCADE',
+      })
     }
   }
   Spot.init({
@@ -28,11 +32,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        goodName(val){
-          if(val === ''){
+        goodName(val) {
+          if (val === '') {
             throw new Error("Name can not be blank.")
           }
-          if(val.startsWith(' ')){
+          if (val.startsWith(' ')) {
             throw new Error("Name can not start with a space.")
           }
         }
