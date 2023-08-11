@@ -11,9 +11,9 @@ router.get('/currentUser/bookings', async (req, res) => {
         }
 
         const bookings = await Booking.findAll({
-            where: {
-                userId: user.id
-            }
+            // where: {
+            //     userId: user.id
+            // }
         })
 
         res.json(bookings)
