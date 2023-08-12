@@ -1,9 +1,9 @@
 const router = require('express').Router();
 const { Review } = require('../../db/models');
 const { Spot } = require('../../db/models')
+const { ReviewImage } = require('../../db/models')
 
 // Gets currentUser reviews
-
 // CHECK URL AGAIN YOU MIGHT WANT TO CHANGE IT
 router.get('/currentUser/reviews', async (req, res) => {
     try {
@@ -84,6 +84,60 @@ router.post('/spots/:id/reviews', async (req, res) => {
         res.json({
             review: newReview
         })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+//delete a image of a review
+router.delete('/:reviewId/images/:imageId', async(req, res)=> {
+    try {
+        const { reviewId, imageId } = req.params
+
+        const review = await Review.findOne({
+            where: {
+                id: reviewId
+            }
+        })
+        const img = await ReviewImage.findOne({
+            where: {
+                id: imageId
+            }
+        })
+        if(!review || !img){
+            throw new Error('Review image couldn\'t be found.')
+        }
+        await img.destroy()
+        res.json({message: 'Successfully deleted'})
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+//post image to review
+router.post('/:id/images', async (req, res)=>{
+    try {
+        const { id } = req.params;
+        const { url } = req.body
+
+        if(!url){
+            throw new Error('Missing information to post image.')
+        }
+
+        if (id === undefined || id === null || id === '') {
+            throw new Error('Not a valid review id.')
+        }
+        const reviews = await Review.findOne({
+            where: {
+                id: id
+            }
+        })
+
+        if (!reviews) {
+            throw new Error('Review was not found.')
+        }
+        const createImg = await ReviewImage.create({id: reviews.id , url })
+
+        return res.json({ createImg })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }

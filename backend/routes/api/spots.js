@@ -68,7 +68,7 @@ router.post('/:id/images', async (req, res) => {
         if (!spot) {
             throw new Error('Spot was not found.')
         }
-        const createImg = await SpotImage.create({ spotId: spot.id, url, preview })
+        const createImg = await SpotImage.create({ id: spot.id, url, preview })
         return res.json(createImg)
 
     } catch (error) {
