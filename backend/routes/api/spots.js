@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { Spot } = require('../../db/models')
 const { User } = require('../../db/models');
 const { SpotImage } = require('../../db/models')
+const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
 
 // Get spots of currentUser
 router.get('/currentUser', async (req, res) => {
@@ -23,7 +24,7 @@ router.get('/currentUser', async (req, res) => {
     }
 })
 //delete image for a spot
-router.delete('/:spotId/images/:imagesId', async( req, res)=> {
+router.delete('/:spotId/images/:imagesId', async (req, res) => {
     try {
         const { spotId, imagesId } = req.params;
 
@@ -37,11 +38,27 @@ router.delete('/:spotId/images/:imagesId', async( req, res)=> {
                 id: imagesId
             }
         })
+
+
+
+
+//YOU NEED TO FINISH THIS ONE
+
+        if (Spot.ownerId !== req.user.id) {
+            throw new Error('Not your review.');
+        }
+
+
+
+
+
+
+
         if (!spotImage || !spot) {
             throw new Error("Spot Image couldn't be found.")
         }
         await spotImage.destroy()
-        res.json({message: 'Successfully deleted'})
+        res.json({ message: 'Successfully deleted' })
 
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -53,7 +70,7 @@ router.post('/:id/images', async (req, res) => {
         const { id } = req.params;
         const { url, preview } = req.body
 
-        if(!url || !preview){
+        if (!url || !preview) {
             throw new Error('Missing information to post image.')
         }
 
@@ -68,6 +85,10 @@ router.post('/:id/images', async (req, res) => {
         if (!spot) {
             throw new Error('Spot was not found.')
         }
+        if (spot.ownerId !== req.user.id) {
+            throw new Error('Not your spot.');
+        }
+
         const createImg = await SpotImage.create({ id: spot.id, url, preview })
         return res.json(createImg)
 
@@ -99,7 +120,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // Edit a spot
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
@@ -130,6 +151,9 @@ router.put('/:id', async (req, res) => {
                 id: id
             }
         })
+        if (spot.ownerId !== req.user.id) {
+            throw new Error('Not your spot.');
+        }
 
         if (!spot) {
             throw new Error('Spot was not found.')
@@ -153,7 +177,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // Delete a spot
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         if (id === undefined || id === null || id === '') {
@@ -164,6 +188,9 @@ router.delete('/:id', async (req, res) => {
                 id: id
             }
         })
+        if (spot.ownerId !== req.user.id) {
+            throw new Error('Not your spot.');
+        }
         if (!spot) {
             throw new Error('Spot was not found.')
         } else {
@@ -177,13 +204,15 @@ router.delete('/:id', async (req, res) => {
 })
 
 // Returns all spots
-router.get('/', async (req, res) => {
+router.get('/',requireAuth, async (req, res) => {
+    // const spots = await Spot.findAll();
+    // res.json(spots)
     const spots = await Spot.findAll();
     res.json(spots)
 })
 
 // Post a spot
-router.post('/', async (req, res) => {
+router.post('/',requireAuth, async (req, res) => {
     try {
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
         if (address === '' || city === '' || state === '' || country === '' || lat === '' || lng === '' || name === '' || description === '' || price === '') {
