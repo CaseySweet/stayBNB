@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { Spot } = require('../../db/models')
 const { User } = require('../../db/models');
+const { SpotImage } = require('../../db/models')
 
 // Get spots of currentUser
 router.get('/currentUser', async (req, res) => {
@@ -21,6 +22,59 @@ router.get('/currentUser', async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 })
+//delete image for a spot
+router.delete('/:spotId/images/:imagesId', async( req, res)=> {
+    try {
+        const { spotId, imagesId } = req.params;
+
+        const spot = await Spot.findOne({
+            where: {
+                id: spotId
+            }
+        })
+        const spotImage = await SpotImage.findOne({
+            where: {
+                id: imagesId
+            }
+        })
+        if (!spotImage || !spot) {
+            throw new Error("Spot Image couldn't be found.")
+        }
+        await spotImage.destroy()
+        res.json({message: 'Successfully deleted'})
+
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+//post image to spot
+router.post('/:id/images', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { url, preview } = req.body
+
+        if(!url || !preview){
+            throw new Error('Missing information to post image.')
+        }
+
+        if (id === undefined || id === null || id === '') {
+            throw new Error('Not a valid spot id.')
+        }
+        const spot = await Spot.findOne({
+            where: {
+                id: id
+            }
+        })
+        if (!spot) {
+            throw new Error('Spot was not found.')
+        }
+        const createImg = await SpotImage.create({ spotId: spot.id, url, preview })
+        return res.json(createImg)
+
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
 
 // Details of a post by id
 router.get('/:id', async (req, res) => {
@@ -37,6 +91,7 @@ router.get('/:id', async (req, res) => {
         if (!spot) {
             throw new Error('Spot was not found.')
         }
+
         res.json(spot)
     } catch (error) {
         res.status(500).json({ error: error.message })
