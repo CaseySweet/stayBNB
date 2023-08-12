@@ -2,10 +2,12 @@ const router = require('express').Router();
 const { Review } = require('../../db/models');
 const { Spot } = require('../../db/models')
 const { ReviewImage } = require('../../db/models')
+const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
+
 
 // Gets currentUser reviews
 // CHECK URL AGAIN YOU MIGHT WANT TO CHANGE IT
-router.get('/currentUser/reviews', async (req, res) => {
+router.get('/currentUser/reviews',requireAuth, async (req, res) => {
     try {
         const { user } = req;
 
@@ -59,7 +61,7 @@ router.get('/spots/:id/reviews', async (req, res) => {
 
 // Make review for spot off spots id
 //CHECK URL CHANGE IT
-router.post('/spots/:id/reviews', async (req, res) => {
+router.post('/spots/:id/reviews', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const { review, stars } = req.body;
@@ -103,6 +105,9 @@ router.delete('/:reviewId/images/:imageId', async(req, res)=> {
                 id: imageId
             }
         })
+        if (review.userId !== req.user.id) {
+            throw new Error('Not your image.');
+        }
         if(!review || !img){
             throw new Error('Review image couldn\'t be found.')
         }
@@ -114,7 +119,7 @@ router.delete('/:reviewId/images/:imageId', async(req, res)=> {
 })
 
 //post image to review
-router.post('/:id/images', async (req, res)=>{
+router.post('/:id/images',requireAuth, async (req, res)=>{
     try {
         const { id } = req.params;
         const { url } = req.body
@@ -131,6 +136,9 @@ router.post('/:id/images', async (req, res)=>{
                 id: id
             }
         })
+        if (reviews.id !== req.user.id) {
+            throw new Error('Not your review.');
+        }
 
         if (!reviews) {
             throw new Error('Review was not found.')
@@ -144,7 +152,7 @@ router.post('/:id/images', async (req, res)=>{
 })
 
 //Edit a review
-router.put('/:id', async (req, res) => {
+router.put('/:id',requireAuth, async (req, res) => {
     try {
         const { id } = req.params
         const { review, stars } = req.body;
@@ -158,6 +166,9 @@ router.put('/:id', async (req, res) => {
                 id: id
             }
         })
+        if (findReview.id !== req.user.id) {
+            throw new Error('Not your review.');
+        }
 
         if (!findReview) {
             throw new Error('Review was not found.')
@@ -177,7 +188,7 @@ router.put('/:id', async (req, res) => {
 })
 
 //Delete a review
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -190,6 +201,9 @@ router.delete('/:id', async (req, res) => {
                 id: id
             }
         })
+        if (review.id !== req.user.id) {
+            throw new Error('Not your review.');
+        }
 
         if (!review) {
             throw new Error('Review was not found.')

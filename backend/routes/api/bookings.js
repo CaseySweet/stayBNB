@@ -1,10 +1,11 @@
 const router = require('express').Router();
 const { Booking } = require('../../db/models')
 const { Spot } = require('../../db/models')
+const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
 
 // Get currentUser bookings
 //CHECK URL
-router.get('/currentUser/bookings', async (req, res) => {
+router.get('/currentUser/bookings',requireAuth, async (req, res) => {
     try {
         const { user } = req;
 
@@ -27,7 +28,7 @@ router.get('/currentUser/bookings', async (req, res) => {
 
 //get all bookings based on spot id
 //CHECK URL
-router.get('/spots/:id/bookings', async (req, res) => {
+router.get('/spots/:id/bookings',requireAuth, async (req, res) => {
     try {
         const { id } = req.params
 
@@ -58,7 +59,7 @@ router.get('/spots/:id/bookings', async (req, res) => {
 })
 
 // Make a booking based off spotId
-router.post('/spots/:id/bookings', async(req,res)=> {
+router.post('/spots/:id/bookings',requireAuth, async(req,res)=> {
     try {
         const { id } = req.params
         const { startDate, endDate } = req.body
@@ -72,6 +73,9 @@ router.post('/spots/:id/bookings', async(req,res)=> {
                 id: id
             }
         })
+        if (spot.ownerId === req.user.id) {
+            throw new Error('You can\'t book your own place.');
+        }
 
         if (!spot) {
             throw new Error('Spot not found.')
@@ -90,7 +94,7 @@ router.post('/spots/:id/bookings', async(req,res)=> {
 })
 
 // Edit a booking by id
-router.put('/:id', async (req, res) => {
+router.put('/:id',requireAuth, async (req, res) => {
     try {
         const { id } = req.params
         const { startDate, endDate } = req.body
@@ -104,6 +108,9 @@ router.put('/:id', async (req, res) => {
                 id: id
             }
         })
+        if (Booking.userId !== req.user.id) {
+            throw new Error('Not your booking.');
+        }
 
         if(!findBooking){
             throw new Error('Booking was not found.')
@@ -120,7 +127,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // Delete a booking
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',requireAuth, async (req, res) => {
     try {
         const { id } = req.params
 
@@ -134,6 +141,10 @@ router.delete('/:id', async (req, res) => {
             }
         })
 
+        if(findBooking.userId !== req.user.id) {
+            throw new Error('Not your booking.')
+        }
+
         if(!findBooking){
             throw new Error('Booking was not found.')
         }
@@ -144,7 +155,7 @@ router.delete('/:id', async (req, res) => {
         res.json(findBooking)
 
     } catch (error) {
-
+        res.status(500).json({ error: error.message })
     }
 })
 
