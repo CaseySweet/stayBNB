@@ -49,6 +49,23 @@ router.put('/:id', async (req, res) => {
         const { id } = req.params;
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
+        if (address === '' || city === '' || state === '' || country === '' || lat === '' || lng === '' || name === '' || description === '' || price === '') {
+            throw new Error(res.status(400).json({
+                message: 'Bad request',
+                error: 'Missing information or information is invalid.'
+                // error: {
+                //     address: "Street address is required",
+                //     city: "City is required",
+                //     state: "State is required",
+                //     country: "Country is required",
+                //     lat: "Latitude is not valid",
+                //     lng: "Longitude is not valid",
+                //     name: "Name must be less than 50 characters",
+                //     description: "Description is required",
+                //     price: "Price per day is required"
+                // }
+            }))
+        }
 
         if (id === undefined || id === null || id === '') {
             throw new Error('Not a valid spot id.')
@@ -115,9 +132,10 @@ router.post('/', async (req, res) => {
     try {
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
         if (address === '' || city === '' || state === '' || country === '' || lat === '' || lng === '' || name === '' || description === '' || price === '') {
-            throw new Error('Missing information to create a spot.')
+            throw new Error(res.status(400).json({
+                error: 'Missing information to create a spot.'
+            }))
         }
-
         const user = req.user.id
 
         const spot = await Spot.create({ address, city, state, country, lat, lng, name, description, price, ownerId: user });
