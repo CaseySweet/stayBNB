@@ -24,39 +24,30 @@ router.get('/currentUser', async (req, res) => {
     }
 })
 //delete image for a spot
-router.delete('/:spotId/images/:imagesId', async (req, res) => {
+router.delete('/:spotId/images/:imagesId', requireAuth, async (req, res) => {
     try {
         const { spotId, imagesId } = req.params;
 
-        const spot = await Spot.findOne({
-            where: {
-                id: spotId
-            }
-        })
         const spotImage = await SpotImage.findOne({
             where: {
-                id: imagesId
-            }
-        })
+                id: imagesId,
+                spotId: spotId
+            },
+            include: [{
+                model: Spot,
+                attributes: ['ownerId']
+            }]
+        });
 
-
-
-
-//YOU NEED TO FINISH THIS ONE
-
-        if (Spot.ownerId !== req.user.id) {
-            throw new Error('Not your review.');
-        }
-
-
-
-
-
-
-
-        if (!spotImage || !spot) {
+        if (!spotImage) {
             throw new Error("Spot Image couldn't be found.")
         }
+
+
+        if (spotImage.Spot.ownerId !== req.user.id) {
+            throw new Error('Not your spot.');
+        }
+
         await spotImage.destroy()
         res.json({ message: 'Successfully deleted' })
 
@@ -177,7 +168,7 @@ router.put('/:id', requireAuth, async (req, res) => {
 })
 
 // Delete a spot
-router.delete('/:id',requireAuth, async (req, res) => {
+router.delete('/:id', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         if (id === undefined || id === null || id === '') {
@@ -204,7 +195,7 @@ router.delete('/:id',requireAuth, async (req, res) => {
 })
 
 // Returns all spots
-router.get('/',requireAuth, async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
     // const spots = await Spot.findAll();
     // res.json(spots)
     const spots = await Spot.findAll();
@@ -212,7 +203,7 @@ router.get('/',requireAuth, async (req, res) => {
 })
 
 // Post a spot
-router.post('/',requireAuth, async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
     try {
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
         if (address === '' || city === '' || state === '' || country === '' || lat === '' || lng === '' || name === '' || description === '' || price === '') {
