@@ -136,16 +136,28 @@ router.post('/:id/images',requireAuth, async (req, res)=>{
                 id: id
             }
         })
-        if (reviews.id !== req.user.id) {
-            throw new Error('Not your review.');
-        }
 
         if (!reviews) {
             throw new Error('Review was not found.')
         }
-        const createImg = await ReviewImage.create({id: reviews.id , url })
 
-        return res.json({ createImg })
+        if (reviews.userId !== req.user.id) {
+            throw new Error('Not your review.');
+        }
+
+        const countReviewImgs = await ReviewImage.count({
+            where: {
+                reviewId: reviews.id
+            }
+        });
+
+        if (countReviewImgs >= 10) {
+            throw new Error('Maximum number of images for this resource was reached.');
+        }
+
+        const createImg = await ReviewImage.create({ reviewId: reviews.id , url })
+
+        return res.json(createImg)
     } catch (error) {
         res.status(500).json({ error: error.message })
     }

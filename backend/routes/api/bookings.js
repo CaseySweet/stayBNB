@@ -2,6 +2,8 @@ const router = require('express').Router();
 const { Booking } = require('../../db/models')
 const { Spot } = require('../../db/models')
 const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
+const { Op } = require('sequelize')
+
 
 // Get currentUser bookings
 //CHECK URL
@@ -68,6 +70,10 @@ router.post('/spots/:id/bookings',requireAuth, async(req,res)=> {
             throw new Error('Missing information to create a booking.')
         }
 
+        if(endDate < startDate){
+            throw new Error('endDate cannot be on or before startDate.')
+        }
+
         const spot = await Spot.findOne({
             where: {
                 id: id
@@ -79,6 +85,28 @@ router.post('/spots/:id/bookings',requireAuth, async(req,res)=> {
 
         if (!spot) {
             throw new Error('Spot not found.')
+        }
+
+        const existingBookings = await Booking.findAll({
+            where: {
+                spotId: spot.id,
+                [Op.or]: [
+                    {
+                        startDate: {
+                            [Op.between]: [startDate, endDate]
+                        }
+                    },
+                    {
+                        endDate: {
+                            [Op.between]: [startDate, endDate]
+                        }
+                    }
+                ]
+            }
+        })
+
+        if (existingBookings.length > 0) {
+            throw new Error('Sorry, this spot is already booked for the specified dates.')
         }
 
         user = req.user.id;
