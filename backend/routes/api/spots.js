@@ -80,7 +80,7 @@ router.post('/:id/images', async (req, res) => {
             throw new Error('Not your spot.');
         }
 
-        const createImg = await SpotImage.create({ id: spot.id, url, preview })
+        const createImg = await SpotImage.create({ spotId: spot.id, url, preview })
         return res.json(createImg)
 
     } catch (error) {
