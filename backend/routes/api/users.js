@@ -7,47 +7,102 @@ const { handleValidationErrors } = require('../../utils/validation');
 
 const router = express.Router();
 
-const validateSignup = [
-  check('email')
-    .exists({ checkFalsy: true })
-    .isEmail()
-    .withMessage('Please provide a valid email.'),
-  check('username')
-    .exists({ checkFalsy: true })
-    .isLength({ min: 4 })
-    .withMessage('Please provide a username with at least 4 characters.'),
-  check('username')
-    .not()
-    .isEmail()
-    .withMessage('Username cannot be an email.'),
-  check('password')
-    .exists({ checkFalsy: true })
-    .isLength({ min: 6 })
-    .withMessage('Password must be 6 characters or more.'),
-  handleValidationErrors
-];
+// const validateSignup = [
+  // check('email')
+    // .exists({ checkFalsy: true })
+//     .isEmail()
+    // .withMessage('Please provide a valid email.'),
+//   check('username')
+//     .exists({ checkFalsy: true })
+//     .isLength({ min: 4 })
+//     .withMessage('Please provide a username with at least 4 characters.'),
+//   check('username')
+//     .not()
+//     .isEmail()
+//     .withMessage('Username cannot be an email.'),
+//   check('password')
+//     .exists({ checkFalsy: true })
+//     .isLength({ min: 6 })
+//     .withMessage('Password must be 6 characters or more.'),
+//   handleValidationErrors
+// ];
 
 router.post(
   '',
-  validateSignup,
+  // validateSignup,
   async (req, res) => {
-    const { firstName, lastName, email, password, username } = req.body;
-    const hashedPassword = bcrypt.hashSync(password);
-    const user = await User.create({ firstName, lastName, email, username, hashedPassword });
+    try {
+      const { firstName, lastName, email, password, username } = req.body;
+      if(!password || password.length < 6){
+        let err = Error('')
+        err = {
+          errors: 'Password must be 6 characters or more.'
+        }
+        return res.status(400).json(err)
 
-    const safeUser = {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      username: user.username,
-    };
+      }
 
-    await setTokenCookie(res, safeUser);
+      if(!firstName || !lastName || !email || !username || !check('email').isEmail()){
+        let err = Error('')
+        err = {
+          message: 'Bad Request',
+          errors: {
+            email: "Invalid email",
+            username: "Username is required",
+            firstName: "First Name is required",
+            lastName: "Last Name is required"
+          }
+        }
+        return res.status(400).json(err)
+      }
 
-    return res.json({
-      user: safeUser
-    });
+      const existingEmail = await User.findOne({
+        where: {
+          email: email
+        }
+      })
+      if (existingEmail) {
+        return res.status(500).json({
+          message: 'User already exists',
+          errors: {
+            email: "User with that email already exists"
+          }
+        })
+      }
+
+      const existingUsername = await User.findOne({
+        where: {
+          username: username
+        }
+      })
+      if (existingUsername) {
+        return res.status(500).json({
+          message: 'User already exists',
+          errors: {
+            email: "User with that username already exists"
+          }
+        })
+      }
+
+      const hashedPassword = bcrypt.hashSync(password);
+      const user = await User.create({ firstName, lastName, email, username, hashedPassword });
+
+      const safeUser = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        username: user.username,
+      };
+
+      await setTokenCookie(res, safeUser);
+
+      return res.json({
+        user: safeUser
+      });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
   }
 );
 
