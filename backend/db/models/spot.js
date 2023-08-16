@@ -19,14 +19,36 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'spotId',
         onDelete: 'CASCADE',
       })
+      Spot.hasMany(models.Booking, {
+        foreignKey: 'spotId',
+        onDelete: 'CASCADE',
+      })
+      Spot.hasMany(models.SpotImage, {
+        foreignKey: 'spotId',
+        onDelete: 'CASCADE'
+      })
     }
   }
   Spot.init({
+    ownerId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'User',
+        key: 'id',
+      }
+    },
     address: DataTypes.STRING,
     city: DataTypes.STRING,
     state: DataTypes.STRING,
     country: DataTypes.STRING,
-    lat: DataTypes.FLOAT,
+    lat: {
+      type: DataTypes.FLOAT,
+      validate:{
+        notEmpty: true,
+        isNumeric: true,
+        isFloat: true
+      }
+    },
     lng: DataTypes.FLOAT,
     name: {
       type: DataTypes.STRING,
@@ -44,13 +66,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     description: DataTypes.STRING,
     price: DataTypes.INTEGER,
-    ownerId: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'User',
-        key: 'id',
-      }
-    }
   }, {
     sequelize,
     modelName: 'Spot',

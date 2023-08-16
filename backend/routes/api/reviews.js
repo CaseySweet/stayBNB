@@ -1,18 +1,23 @@
 const router = require('express').Router();
 const { Review } = require('../../db/models');
 const { Spot } = require('../../db/models')
+const { ReviewImage } = require('../../db/models')
+const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
+
 
 // Gets currentUser reviews
-
 // CHECK URL AGAIN YOU MIGHT WANT TO CHANGE IT
-router.get('/currentUser/reviews', async (req, res) => {
+router.get('/currentUser/reviews', requireAuth, async (req, res) => {
     try {
         const { user } = req;
 
         if (user === null) {
             throw new Error('There is no user signed in.')
         }
-
+// YOURE WORKING ON THIS ONE
+//
+//
+//
         const reviews = await Review.findAll({
             where: {
                 userId: user.id
@@ -59,13 +64,26 @@ router.get('/spots/:id/reviews', async (req, res) => {
 
 // Make review for spot off spots id
 //CHECK URL CHANGE IT
-router.post('/spots/:id/reviews', async (req, res) => {
+router.post('/spots/:id/reviews', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const { review, stars } = req.body;
 
-        if (!id || !review || !stars) {
-            throw new Error('Missing information to create a review.')
+        if (!id) {
+            throw new Error('Missing id to create a review.')
+        }
+
+        if (!review || stars <= 0 || stars > 5) {
+            let err = Error()
+            err = {
+                message: "Bad Request",
+                errors: {
+                    review: "Review text is required",
+                    stars: "Stars must be an integer from 1 to 5"
+                }
+            }
+            return res.status(400).json(err)
+
         }
 
         const spot = await Spot.findOne({
@@ -75,14 +93,115 @@ router.post('/spots/:id/reviews', async (req, res) => {
         })
 
         if (!spot) {
-            throw new Error('Spot not found.')
+            let err = Error()
+            err = {
+                message: 'Spot couldn\'t be found'
+            }
+            return res.status(404).json(err)
         }
 
         user = req.user.id;
 
-        const newReview = await Review.create({ review, stars, spotId: spot.id, userId: user })
-        res.json({
-            review: newReview
+        const reviewUserId = await Review.findOne({
+            where: {
+                userId: user
+            }
+        })
+
+        if (reviewUserId.userId === user) {
+            let err = Error()
+            err = {
+                message: "User already has a review for this spot"
+            }
+            return res.status(500).json(err)
+        }
+
+        const newReview = await Review.create({ spotId: spot.id, userId: user, review, stars })
+        res.json(newReview)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+//delete a image of a review
+router.delete('/:reviewId/images/:imageId', async (req, res) => {
+    try {
+        const { reviewId, imageId } = req.params
+
+        const review = await Review.findOne({
+            where: {
+                id: reviewId
+            }
+        })
+        const img = await ReviewImage.findOne({
+            where: {
+                id: imageId
+            }
+        })
+        if (review.userId !== req.user.id) {
+            throw new Error('Not your image.');
+        }
+        if (!review || !img) {
+            throw new Error('Review image couldn\'t be found.')
+        }
+        await img.destroy()
+        res.json({ message: 'Successfully deleted' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+//post image to review
+router.post('/:id/images', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { url } = req.body
+
+        if (!url) {
+            throw new Error('Missing information to post image.')
+        }
+
+        if (id === undefined || id === null || id === '') {
+            throw new Error('Not a valid review id.')
+        }
+        const reviews = await Review.findOne({
+            where: {
+                id: id
+            }
+        })
+
+        if (!reviews) {
+            let err = Error()
+            err = {
+                message: "Review couldn\'t be found"
+            }
+            return res.status(404).json(err)
+        }
+
+        if (reviews.userId !== req.user.id) {
+            throw new Error('Not your review.');
+        }
+
+        const countReviewImgs = await ReviewImage.count({
+            where: {
+                reviewId: reviews.id
+            }
+        });
+
+        if (countReviewImgs >= 10) {
+            let err = Error()
+            err = {
+                message: 'Maximum number of images for this resource was reached.'
+            }
+            return res.status(403).json(err)
+        }
+
+        const createImg = await ReviewImage.create({ reviewId: reviews.id, url })
+
+        const { id: reviewImgId } = createImg
+
+        return res.json({
+            id: reviewImgId,
+            url
         })
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -90,7 +209,7 @@ router.post('/spots/:id/reviews', async (req, res) => {
 })
 
 //Edit a review
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireAuth, async (req, res) => {
     try {
         const { id } = req.params
         const { review, stars } = req.body;
@@ -104,6 +223,9 @@ router.put('/:id', async (req, res) => {
                 id: id
             }
         })
+        if (findReview.id !== req.user.id) {
+            throw new Error('Not your review.');
+        }
 
         if (!findReview) {
             throw new Error('Review was not found.')
@@ -123,7 +245,7 @@ router.put('/:id', async (req, res) => {
 })
 
 //Delete a review
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -136,6 +258,9 @@ router.delete('/:id', async (req, res) => {
                 id: id
             }
         })
+        if (review.id !== req.user.id) {
+            throw new Error('Not your review.');
+        }
 
         if (!review) {
             throw new Error('Review was not found.')
