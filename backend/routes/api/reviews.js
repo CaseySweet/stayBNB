@@ -122,7 +122,7 @@ router.get('/spots/:id/reviews', async (req, res) => {
                 }
             ]
         })
-        res.json({Reviews: reviews})
+        res.json({ Reviews: reviews })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -195,18 +195,23 @@ router.delete('/:reviewId/images/:imageId', async (req, res) => {
         const review = await Review.findOne({
             where: {
                 id: reviewId
-            }
+            },
         })
         const img = await ReviewImage.findOne({
             where: {
                 id: imageId
             }
         })
+        if (!review || !img) {
+            let err = Error()
+            err = {
+                message: 'Review Image couldn\'t be found'
+            }
+            return res.status(404).json(err)
+        }
+
         if (review.userId !== req.user.id) {
             throw new Error('Not your image.');
-        }
-        if (!review || !img) {
-            throw new Error('Review image couldn\'t be found.')
         }
         await img.destroy()
         res.json({ message: 'Successfully deleted' })
@@ -348,17 +353,20 @@ router.delete('/:id', requireAuth, async (req, res) => {
                 id: id
             }
         })
-        if (review.id !== req.user.id) {
-            throw new Error('Not your review.');
-        }
 
         if (!review) {
-            throw new Error('Review was not found.')
-        } else {
-            await review.destroy();
-            res.json({ message: 'Review deleted.' })
+            let err = Error()
+            err = {
+                message: 'Review couldn\'t be found'
+            }
+            return res.status(404).json(err)
         }
-        res.json(review)
+
+        if (review.userId !== req.user.id) {
+            throw new Error('Not your review.');
+        }
+        await review.destroy();
+        res.json({ message: 'Successfully deleted' })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
