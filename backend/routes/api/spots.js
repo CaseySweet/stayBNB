@@ -45,7 +45,11 @@ router.get('/currentUser', async (req, res) => {
                 },
                 {
                     model: SpotImage,
-                    attributes: []
+                    attributes: [],
+                    where: {
+                        preview: true
+                    },
+                    required: false
                 }
             ],
             group: ['Spot.id']
