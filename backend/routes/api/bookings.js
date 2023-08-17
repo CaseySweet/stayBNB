@@ -3,6 +3,9 @@ const { Booking } = require('../../db/models')
 const { Spot } = require('../../db/models')
 const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
 const { Op } = require('sequelize')
+const { SpotImage } = require('../../db/models')
+const { sequelize } = require('../../db/models')
+const { User } = require('../../db/models');
 
 
 // Get currentUser bookings
@@ -18,10 +21,40 @@ router.get('/currentUser/bookings',requireAuth, async (req, res) => {
         const bookings = await Booking.findAll({
             where: {
                 userId: user.id
-            }
+            },
+            include: [
+                {
+                    model: Spot,
+                    attributes: {
+                        exclude: [
+                            'description', 'createdAt', 'updatedAt'
+                        ]
+                    }
+                }
+            ],
         })
 
-        res.json(bookings)
+        const bookingData = []
+        for(let i = 0; i < bookings.length; i++){
+            let booking = bookings[i]
+            let bookingObj = booking.toJSON()
+            let spot = bookingObj.Spot
+            const previewImage = await SpotImage.findOne({
+                where: {
+                    preview: true,
+                    spotId: spot.id
+                }
+            })
+            if(previewImage) {
+                spot.previewImage = previewImage.url
+            }else{
+                spot.previewImage = null
+            }
+            bookingData.push(bookingObj)
+        }
+        res.json({
+            Bookings: bookingData
+        })
 
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -45,16 +78,45 @@ router.get('/spots/:id/bookings',requireAuth, async (req, res) => {
         });
 
         if (!spot) {
-            throw new Error('Spot not found.')
+            let err = Error()
+            err = {
+                message: 'Spot couldn\'t be found'
+            }
+            return res.status(404).json(err)
         }
 
-        const bookings = await Booking.findAll({
+        const bookingsOwner = await Booking.findAll({
             where: {
                 spotId: spot.id
+            },
+            include: [
+                {
+                    model: User,
+                    attributes: [
+                        'id', 'firstName', 'lastName'
+                    ]
+                }
+            ]
+        })
+        const bookingsNotOwner = await Booking.findAll({
+            where: {
+                spotId: spot.id
+            },
+            attributes: {
+                exclude: [
+                    'id', 'userId', 'createdAt', 'updatedAt'
+                ]
             }
         })
 
-        res.json(bookings)
+        if(spot.ownerId !== req.user.id){
+            return res.status(200).json({
+                Bookings: bookingsNotOwner
+            })
+        }
+
+
+        res.json(bookingsOwner)
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -71,7 +133,14 @@ router.post('/spots/:id/bookings',requireAuth, async(req,res)=> {
         }
 
         if(endDate < startDate){
-            throw new Error('endDate cannot be on or before startDate.')
+            let err = Error()
+            err = {
+                message: 'Bad Request',
+                errors: {
+                    endDate: 'endDate cannot be on or before startDate'
+                }
+            }
+            return res.status(400).json(err)
         }
 
         const spot = await Spot.findOne({
@@ -79,12 +148,16 @@ router.post('/spots/:id/bookings',requireAuth, async(req,res)=> {
                 id: id
             }
         })
-        if (spot.ownerId === req.user.id) {
-            throw new Error('You can\'t book your own place.');
+        if (!spot) {
+            let err = Error()
+            err = {
+                message: 'Spot couldn\'t be found'
+            }
+            return res.status(404).json(err)
         }
 
-        if (!spot) {
-            throw new Error('Spot not found.')
+        if (spot.ownerId === req.user.id) {
+            throw new Error('You can\'t book your own place.');
         }
 
         const existingBookings = await Booking.findAll({
@@ -106,15 +179,20 @@ router.post('/spots/:id/bookings',requireAuth, async(req,res)=> {
         })
 
         if (existingBookings.length > 0) {
-            throw new Error('Sorry, this spot is already booked for the specified dates.')
+            let err = Error()
+            err = {
+                message: 'Sorry, this spot is already booked for the specified dates',
+                errors: {
+                    startDate: 'Start date conflicts with an existing booking',
+                    endDate: 'End date conflicts with an existing booking'
+                }
+            }
+            return res.status(403).json(err)
         }
 
-        user = req.user.id;
-
-        const newBooking = await Booking.create({ startDate, endDate, spotId: spot.id, userId: user})
-        res.json({
-            booking: newBooking
-        })
+        let user = req.user.id;
+        const newBooking = await Booking.create({ spotId: spot.id, userId: user, startDate, endDate, })
+        res.json(newBooking)
 
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -131,17 +209,65 @@ router.put('/:id',requireAuth, async (req, res) => {
             throw new Error('Missing information to create a booking.')
         }
 
-        const findBooking = await Booking.findOne({
-            where: {
-                id: id
+        if(endDate < startDate){
+            let err = Error()
+            err = {
+                message: 'Bad Request',
+                errors: {
+                    endDate: 'endDate cannot be on or before startDate'
+                }
             }
-        })
-        if (Booking.userId !== req.user.id) {
-            throw new Error('Not your booking.');
+            return res.status(400).json(err)
         }
 
-        if(!findBooking){
-            throw new Error('Booking was not found.')
+        const currentDate = new Date();
+        if (new Date(endDate) < currentDate) {
+            let err = Error()
+            err = {
+                message: 'Past bookings can\'t be modified'
+            }
+            return res.status(403).json(err)
+        }
+
+        const findBooking = await Booking.findAll({
+            where: {
+                id: id,
+                [Op.or]: [
+                    {
+                        startDate: {
+                            [Op.between]: [startDate, endDate]
+                        }
+                    },
+                    {
+                        endDate: {
+                            [Op.between]: [startDate, endDate]
+                        }
+                    }
+                ]
+            }
+        })
+        if (findBooking.startDate === startDate || findBooking.endDate === endDate) {
+            let err = Error()
+            err = {
+                message: 'Sorry, this spot is already booked for the specified dates',
+                errors: {
+                    startDate: 'Start date conflicts with an existing booking',
+                    endDate: 'End date conflicts with an existing booking'
+                }
+            }
+            return res.status(403).json(err)
+        }
+
+        if (!findBooking) {
+            let err = Error()
+            err = {
+                message: 'Booking couldn\'t be found'
+            }
+            return res.status(404).json(err)
+        }
+
+        if (findBooking.userId !== req.user.id) {
+            throw new Error('Not your booking.');
         }
 
         if(startDate) findBooking.startDate = startDate
@@ -169,16 +295,29 @@ router.delete('/:id',requireAuth, async (req, res) => {
             }
         })
 
+        if(!findBooking){
+            let err = Error()
+            err = {
+                message: 'Booking couldn\'t be found'
+            }
+            return res.status(404).json(err)
+        }
+
+        const currentDate = new Date();
+        if (new Date(findBooking.startDate) < currentDate) {
+            let err = Error()
+            err = {
+                message: 'Bookings that have been started can\'t be deleted'
+            }
+            return res.status(403).json(err)
+        }
+
         if(findBooking.userId !== req.user.id) {
             throw new Error('Not your booking.')
         }
-
-        if(!findBooking){
-            throw new Error('Booking was not found.')
-        }
         else {
             await findBooking.destroy();
-            res.json({ message: 'Booking deleted.' })
+            res.json({ message: 'Successfully deleted' })
         }
         res.json(findBooking)
 
