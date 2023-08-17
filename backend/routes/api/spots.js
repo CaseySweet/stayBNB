@@ -45,7 +45,11 @@ router.get('/currentUser', async (req, res) => {
                 },
                 {
                     model: SpotImage,
-                    attributes: []
+                    attributes: [],
+                    where: {
+                        preview: true
+                    },
+                    required: false
                 }
             ],
             group: ['Spot.id']
@@ -73,7 +77,11 @@ router.delete('/:spotId/images/:imagesId', requireAuth, async (req, res) => {
         });
 
         if (!spotImage) {
-            throw new Error("Spot Image couldn't be found.")
+            let err = Error()
+            err = {
+                message: 'Spot Image couldn\'t be found'
+            }
+            return res.status(404).json(err)
         }
 
 
@@ -194,20 +202,20 @@ router.put('/:id', requireAuth, async (req, res) => {
         const { id } = req.params;
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
-        if (address === '' || city === '' || state === '' || country === '' || lat === '' || typeof lat !== 'number'|| lng === '' ||typeof lng !== 'number'|| name === '' || description === '' || !price) {
+        if (address === '' || city === '' || state === '' || country === '' || lat === '' || typeof lat !== 'number' || lng === '' || typeof lng !== 'number' || name === '' || description === '' || !price) {
             console.log(lat)
-            return(res.status(400).json({
+            return (res.status(400).json({
                 message: "Bad Request",
                 errors: {
-                  address: "Street address is required",
-                  city: "City is required",
-                  state: "State is required",
-                  country: "Country is required",
-                  lat: "Latitude is not valid",
-                  lng: "Longitude is not valid",
-                  name: "Name must be less than 50 characters",
-                  description: "Description is required",
-                  price: "Price per day is required"
+                    address: "Street address is required",
+                    city: "City is required",
+                    state: "State is required",
+                    country: "Country is required",
+                    lat: "Latitude is not valid",
+                    lng: "Longitude is not valid",
+                    name: "Name must be less than 50 characters",
+                    description: "Description is required",
+                    price: "Price per day is required"
                 }
             }))
         }
@@ -261,16 +269,18 @@ router.delete('/:id', requireAuth, async (req, res) => {
                 id: id
             }
         })
+        if (!spot) {
+            let err = Error()
+            err = {
+                message: 'Spot couldn\'t be found'
+            }
+            return res.status(404).json(err)
+        }
         if (spot.ownerId !== req.user.id) {
             throw new Error('Not your spot.');
         }
-        if (!spot) {
-            throw new Error('Spot was not found.')
-        } else {
-            await spot.destroy()
-            res.json({ message: 'Spot deleted.' })
-        }
-        res.json(spot)
+        await spot.destroy()
+        res.json({ message: 'Successfully deleted.' })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -278,6 +288,28 @@ router.delete('/:id', requireAuth, async (req, res) => {
 
 // Returns all spots
 router.get('/', requireAuth, async (req, res) => {
+    let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query;
+    page = parseInt(page)
+    size = parseInt(size)
+
+    if(!page) page = 1;
+    if(!size) size = 20;
+
+
+    whereClause = {}
+    if(minLat) whereClause.minLat = minLat
+    if(maxLat) whereClause.maxLat = maxLat
+    if(minLng) whereClause.minLng = minLng
+    if(maxLng) whereClause.maxLng = maxLng
+    if(minPrice) whereClause.minPrice = minPrice
+    if(maxPrice) whereClause.maxPrice = maxPrice
+
+    const pagination = {}
+    if(page >= 1 && size >= 1){
+        pagination.limit = size;
+        pagination.offset = size * (page - 1)
+    }
+
     const spots = await Spot.findAll({
         attributes: [
             'id',
@@ -306,10 +338,14 @@ router.get('/', requireAuth, async (req, res) => {
                 attributes: []
             }
         ],
-        group: ['Spot.id']
+        group: ['Spot.id'],
+        // ...pagination,
+        where: whereClause
     })
     res.json({
-        Spots: spots
+        Spots: spots,
+        page: page,
+        size: size
     })
 })
 
@@ -318,20 +354,20 @@ router.post('/', requireAuth, async (req, res) => {
     try {
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
-        if (address === '' || city === '' || state === '' || country === '' || lat === '' || typeof lat !== 'number'|| lng === '' ||typeof lng !== 'number'|| name === '' || description === '' || price === '') {
+        if (address === '' || city === '' || state === '' || country === '' || lat === '' || typeof lat !== 'number' || lng === '' || typeof lng !== 'number' || name === '' || description === '' || price === '') {
             console.log(lat)
-            return(res.status(400).json({
+            return (res.status(400).json({
                 message: "Bad Request",
                 errors: {
-                  address: "Street address is required",
-                  city: "City is required",
-                  state: "State is required",
-                  country: "Country is required",
-                  lat: "Latitude is not valid",
-                  lng: "Longitude is not valid",
-                  name: "Name must be less than 50 characters",
-                  description: "Description is required",
-                  price: "Price per day is required"
+                    address: "Street address is required",
+                    city: "City is required",
+                    state: "State is required",
+                    country: "Country is required",
+                    lat: "Latitude is not valid",
+                    lng: "Longitude is not valid",
+                    name: "Name must be less than 50 characters",
+                    description: "Description is required",
+                    price: "Price per day is required"
                 }
             }))
         }
