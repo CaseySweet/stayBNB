@@ -8,19 +8,9 @@ const { User } = require('../../db/models');
 
 const router = express.Router();
 
-// const validateLogin = [
-//   check('credential')
-//     .exists({ checkFalsy: true })
-//     .notEmpty()
-//     .withMessage('Please provide a valid email or username.'),
-//   check('password')
-//     .exists({ checkFalsy: true })
-//     .withMessage('Please provide a password.'),
-//   handleValidationErrors
-// ];
 //Login
 router.post(
-  '/',
+  '/login',
   // validateLogin,
   async (req, res, next) => {
     try {
@@ -73,12 +63,12 @@ router.post(
 );
 
 router.get(
-  '/',
+  '/currentUser',
   requireAuth,
   (req, res) => {
     try {
       const { user } = req;
-      if(!user){
+      if (!user) {
         const err = new Error()
         err.user = null
         return res.status(200).json(err);
