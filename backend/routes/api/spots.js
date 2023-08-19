@@ -20,7 +20,7 @@ router.get('/currentUser', async (req, res) => {
 
         const spots = await Spot.findAll({
             where: {
-                ownerId: user.id
+                ownerId: req.user.id
             },
             attributes: [
                 'id',
@@ -36,26 +36,49 @@ router.get('/currentUser', async (req, res) => {
                 'price',
                 'createdAt',
                 'updatedAt',
-                [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating'],
-                [sequelize.col('SpotImages.url'), 'preview']
             ],
-            include: [
-                {
-                    model: Review,
-                    attributes: []
-                },
-                {
-                    model: SpotImage,
-                    attributes: [],
-                    where: {
-                        preview: true
-                    },
-                    required: false
-                }
-            ],
-            group: ['Spot.id']
         })
-        res.json({ Spots: spots })
+
+        let rslt = []
+
+        for (let spot1 of spots) {
+            let spot = spot1.toJSON()
+            const spotImages = await SpotImage.findAll({
+                where: {
+                    spotId: spot.id,
+                    preview: true
+                },
+                attributes: ['url']
+            })
+            if(spotImages){
+                spot.previewImage = spotImages[0].url
+            }
+            if(!spotImages) spot.previewImage = null
+
+            const reviews1 = await Review.findAll({
+                where: {
+                    spotId: spot.id
+                },
+                attributes: ['stars']
+            })
+
+            if (reviews1.length) {
+                let sum = 0
+
+                for (let review of reviews1) {
+                    let reviewObj = review.toJSON()
+                    sum += reviewObj.stars
+                }
+                let avg = Number((sum / reviews1.length).toFixed(2))
+
+                spot.avgRating = avg
+                rslt.push(spot)
+            } else {
+                spot.avgRating = null
+                rslt.push(spot)
+            }
+        }
+        res.json({ Spots: rslt })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -145,6 +168,13 @@ router.get('/:id/bookings', requireAuth, async (req, res) => {
                 ]
             }
         })
+        if(!bookingsNotOwner || !bookingsOwner){
+            let err = Error()
+            err = {
+                Bookings: []
+            }
+            return res.status(200).json(err)
+        }
 
         if (spot.ownerId !== req.user.id) {
             return res.status(200).json({
@@ -153,7 +183,7 @@ router.get('/:id/bookings', requireAuth, async (req, res) => {
         }
 
 
-        res.json(bookingsOwner)
+        res.json({Bookings: bookingsOwner})
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -271,6 +301,9 @@ router.post('/:id/reviews', requireAuth, async (req, res) => {
                 message: 'Spot couldn\'t be found'
             }
             return res.status(404).json(err)
+        }
+        if (spot.ownerId === req.user.id) {
+            throw new Error('You can\'t review your own place.');
         }
 
         const existingReview = await Review.findOne({
@@ -417,32 +450,58 @@ router.get('/:id', async (req, res) => {
                 'price',
                 'createdAt',
                 'updatedAt',
-                [sequelize.fn('COUNT', sequelize.col('Reviews.stars')), 'numReviews'],
-                [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating'],
             ],
-            include: [
-                {
-                    model: Review,
-                    attributes: []
-                },
-                {
-                    model: SpotImage,
-                    attributes: ['id', 'url', 'preview']
-                },
-                {
-                    model: User,
-                    attributes: ['id', 'firstName', 'lastName'],
-                }
-            ],
-            group: ['Spot.id']
         })
+
         if (!spot) {
             return res.status(404).json({
                 message: 'Spot couldn\'t be found'
             })
         }
 
-        res.json(spot)
+        let spotJson = spot.toJSON()
+        const spotImages = await SpotImage.findAll({
+            where: {
+                spotId: spot.id,
+            },
+            attributes: ['id', 'url', 'preview']
+        })
+        if(spotImages){
+            spotJson.SpotImages = spotImages
+        }
+        if(!spotImages) spotJson.SpotImages = null
+        const owner = await User.findOne({
+            where: {
+                id: spot.ownerId
+            },
+            attributes: ['id', 'firstName', 'lastName']
+        })
+        if(owner){
+            spotJson.Owner = owner
+        }
+        const reviews1 = await Review.findAll({
+            where: {
+                spotId: spot.id
+            },
+            attributes: ['stars']
+        })
+
+        if (reviews1.length) {
+            let sum = 0
+
+            for (let review of reviews1) {
+                let reviewObj = review.toJSON()
+                sum += reviewObj.stars
+            }
+            let avg = Number((sum / reviews1.length).toFixed(2))
+            spotJson.numReviews = reviews1.length
+            spotJson.avgStarRating = avg
+        } else {
+            spotJson.avgStarRating = null
+            spotJson.numReviews = null
+        }
+
+        res.json(spotJson)
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -454,22 +513,111 @@ router.put('/:id', requireAuth, async (req, res) => {
         const { id } = req.params;
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
-        if (address === '' || city === '' || state === '' || country === '' || lat === '' || typeof lat !== 'number' || lng === '' || typeof lng !== 'number' || name === '' || description === '' || !price) {
+        if(!address){
             return (res.status(400).json({
                 message: "Bad Request",
                 errors: {
-                    address: "Street address is required",
-                    city: "City is required",
-                    state: "State is required",
-                    country: "Country is required",
-                    lat: "Latitude is not valid",
-                    lng: "Longitude is not valid",
-                    name: "Name must be less than 50 characters",
-                    description: "Description is required",
-                    price: "Price per day is required"
+                    address: "Street address is required"
                 }
             }))
         }
+        if(!city){
+            let err = Error()
+            err = {
+                message: 'Bad Request',
+                errors: {
+                    city: 'City is required'
+                }
+            }
+            return res.status(400).json(err)
+        }
+        if(!state){
+            let err = Error()
+            err = {
+                message: 'Bad Request',
+                errors: {
+                    city: 'State is required'
+                }
+            }
+            return res.status(400).json(err)
+        }
+        if(!country){
+            let err = Error()
+            err = {
+                message: 'Bad Request',
+                errors: {
+                    city: 'Country is required'
+                }
+            }
+            return res.status(400).json(err)
+        }
+        if(!lat || typeof lat !== 'number'){
+            let err = Error()
+            err = {
+                message: 'Bad Request',
+                errors: {
+                    city: 'Latitude is not valid'
+                }
+            }
+            return res.status(400).json(err)
+        }
+        if(lng === '' || typeof lng !== 'number'){
+            let err = Error()
+            err = {
+                message: 'Bad Request',
+                errors: {
+                    city: 'Longitude is not valid'
+                }
+            }
+            return res.status(400).json(err)
+        }
+        if(!name){
+            let err = Error()
+            err = {
+                message: 'Bad Request',
+                errors: {
+                    city: 'Name must be less than 50 characters'
+                }
+            }
+            return res.status(400).json(err)
+        }
+        if(!description){
+            let err = Error()
+            err = {
+                message: 'Bad Request',
+                errors: {
+                    city: 'Description is required'
+                }
+            }
+            return res.status(400).json(err)
+        }
+        if(!price || typeof price !== 'number'){
+            let err = Error()
+            err = {
+                message: 'Bad Request',
+                errors: {
+                    city: 'Price per day is required'
+                }
+            }
+            return res.status(400).json(err)
+        }
+
+        // if (address === '' || city === '' || state === '' || country === '' || lat === '' || typeof lat !== 'number' || lng === '' || typeof lng !== 'number' || name === '' || description === '' || !price) {
+        //     return (res.status(400).json({
+        //         message: "Bad Request",
+        //         errors: {
+        //             address: "Street address is required",
+        //             city: "City is required",
+        //             state: "State is required",
+        //             country: "Country is required",
+        //             lat: "Latitude is not valid",
+        //             lng: "Longitude is not valid",
+        //             name: "Name must be less than 50 characters",
+        //             description: "Description is required",
+        //             price: "Price per day is required"
+        //         }
+        //     }))
+        // }
 
         if (id === undefined || id === null || id === '') {
             throw new Error('Not a valid spot id.')
@@ -516,6 +664,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
         if (id === undefined || id === null || id === '') {
             throw new Error('Not a valid spot id.')
         }
+
         const spot = await Spot.findOne({
             where: {
                 id: id
@@ -529,8 +678,9 @@ router.delete('/:id', requireAuth, async (req, res) => {
             return res.status(404).json(err)
         }
         if (spot.ownerId !== req.user.id) {
-            throw new Error('Not your spot.');
+            throw new Error('Not your spot.')
         }
+
         await spot.destroy()
         res.json({ message: 'Successfully deleted.' })
     } catch (error) {
@@ -540,29 +690,31 @@ router.delete('/:id', requireAuth, async (req, res) => {
 
 // Returns all spots
 router.get('/', requireAuth, async (req, res) => {
-    let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query;
-    page = parseInt(page)
-    size = parseInt(size)
+    // let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query;
+    // page = parseInt(page)
+    // size = parseInt(size)
 
-    if (!page) page = 1;
-    if (!size) size = 20;
+    // if (!page) page = 1;
+    // if (!size) size = 20;
 
+    // whereClause = {}
+    // if (minLat) whereClause.minLat = minLat
+    // if (maxLat) whereClause.maxLat = maxLat
+    // if (minLng) whereClause.minLng = minLng
+    // if (maxLng) whereClause.maxLng = maxLng
+    // if (minPrice) whereClause.minPrice = minPrice
+    // if (maxPrice) whereClause.maxPrice = maxPrice
 
-    whereClause = {}
-    if (minLat) whereClause.minLat = minLat
-    if (maxLat) whereClause.maxLat = maxLat
-    if (minLng) whereClause.minLng = minLng
-    if (maxLng) whereClause.maxLng = maxLng
-    if (minPrice) whereClause.minPrice = minPrice
-    if (maxPrice) whereClause.maxPrice = maxPrice
-
-    const pagination = {}
-    if (page >= 1 && size >= 1) {
-        pagination.limit = size;
-        pagination.offset = size * (page - 1)
-    }
+    // const pagination = {}
+    // if (page >= 1 && size >= 1) {
+    //     pagination.limit = size;
+    //     pagination.offset = size * (page - 1)
+    // }
 
     const spots = await Spot.findAll({
+        where: {
+
+        },
         attributes: [
             'id',
             'ownerId',
@@ -577,28 +729,51 @@ router.get('/', requireAuth, async (req, res) => {
             'price',
             'createdAt',
             'updatedAt',
-            [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating'],
-            [sequelize.col('SpotImages.url'), 'preview']
         ],
-        include: [
-            {
-                model: Review,
-                attributes: []
+        ...pagination
+    })
+
+    let rslt = []
+    // console.log(rslt)
+
+    for (let spot1 of spots) {
+        let spot = spot1.toJSON()
+        const spotImages = await SpotImage.findAll({
+            where: {
+                spotId: spot.id,
+                preview: true
             },
-            {
-                model: SpotImage,
-                attributes: []
+            attributes: ['url']
+        })
+        if(spotImages){
+            spot.previewImage = spotImages[0].url
+        }
+        if(!spotImages) spot.previewImage = null
+
+        const reviews1 = await Review.findAll({
+            where: {
+                spotId: spot.id
+            },
+            attributes: ['stars']
+        })
+
+        if (reviews1.length) {
+            let sum = 0
+
+            for (let review of reviews1) {
+                let reviewObj = review.toJSON()
+                sum += reviewObj.stars
             }
-        ],
-        group: ['Spot.id'],
-        // ...pagination,
-        where: whereClause
-    })
-    res.json({
-        Spots: spots,
-        page: page,
-        size: size
-    })
+            let avg = Number((sum / reviews1.length).toFixed(2))
+
+            spot.avgRating = avg
+            rslt.push(spot)
+        } else {
+            spot.avgRating = null
+            rslt.push(spot)
+        }
+    }
+    res.json({ Spots: rslt , page: page, size: size})
 })
 
 // Post a spot
