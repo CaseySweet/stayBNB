@@ -63,6 +63,7 @@ router.get('/currentUser/bookings',requireAuth, async (req, res) => {
 // Edit a booking by id
 router.put('/bookings/:id',requireAuth, async (req, res) => {
     try {
+        const { user } = req
         const { id } = req.params
         const { startDate, endDate } = req.body
 
@@ -93,32 +94,8 @@ router.put('/bookings/:id',requireAuth, async (req, res) => {
         const findBooking = await Booking.findAll({
             where: {
                 id: id,
-                [Op.or]: [
-                    {
-                        startDate: {
-                            [Op.between]: [startDate, endDate]
-                        }
-                    },
-                    {
-                        endDate: {
-                            [Op.between]: [startDate, endDate]
-                        }
-                    }
-                ]
             }
         })
-        if (findBooking.startDate === startDate || findBooking.endDate === endDate) {
-            let err = Error()
-            err = {
-                message: 'Sorry, this spot is already booked for the specified dates',
-                errors: {
-                    startDate: 'Start date conflicts with an existing booking',
-                    endDate: 'End date conflicts with an existing booking'
-                }
-            }
-            return res.status(403).json(err)
-        }
-
         if (!findBooking) {
             let err = Error()
             err = {
