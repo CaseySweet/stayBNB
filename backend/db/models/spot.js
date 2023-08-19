@@ -25,18 +25,11 @@ module.exports = (sequelize, DataTypes) => {
       })
       Spot.hasMany(models.SpotImage, {
         foreignKey: 'spotId',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       })
     }
   }
   Spot.init({
-    ownerId: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'User',
-        key: 'id',
-      }
-    },
     address: DataTypes.STRING,
     city: DataTypes.STRING,
     state: DataTypes.STRING,
@@ -66,6 +59,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     description: DataTypes.STRING,
     price: DataTypes.INTEGER,
+    ownerId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'User',
+        key: 'id',
+      }
+    }
   }, {
     sequelize,
     modelName: 'Spot',
