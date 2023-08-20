@@ -247,10 +247,23 @@ router.delete('/reviews/:id', requireAuth, async (req, res) => {
             return res.status(404).json(err)
         }
 
+        const reviewImgs = await ReviewImage.findAll({
+            where: {
+                reviewId: review.id
+            }
+        })
+
         if (review.userId !== req.user.id) {
             throw new Error('Not your review.');
         }
-        await review.destroy();
+
+        for (const reviewImg in reviewImgs) {
+            await reviewImgs[reviewImg].destroy();
+        }
+
+
+
+        await review.destroy()
         res.json({ message: 'Successfully deleted' })
     } catch (error) {
         res.status(500).json({ error: error.message })

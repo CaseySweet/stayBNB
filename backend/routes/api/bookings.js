@@ -91,11 +91,12 @@ router.put('/bookings/:id',requireAuth, async (req, res) => {
             return res.status(403).json(err)
         }
 
-        const findBooking = await Booking.findAll({
+        const findBooking = await Booking.findOne({
             where: {
                 id: id,
             }
         })
+
         if (!findBooking) {
             let err = Error()
             err = {
