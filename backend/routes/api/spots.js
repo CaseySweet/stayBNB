@@ -677,8 +677,48 @@ router.delete('/:id', requireAuth, async (req, res) => {
             }
             return res.status(404).json(err)
         }
+
         if (spot.ownerId !== req.user.id) {
             throw new Error('Not your spot.')
+        }
+
+        const spotImgs = await SpotImage.findAll({
+            where: {
+                spotId: spot.id
+            }
+        })
+
+        const bookings = await Booking.findAll({
+            where: {
+                spotId: spot.id
+            }
+        })
+
+        const reviews = await Review.findAll({
+            where: {
+                spotId: spot.id
+            }
+        })
+
+        for (const spotImg in spotImgs) {
+            await spotImgs[spotImg].destroy()
+        }
+
+        for (const booking in bookings) {
+            await bookings[booking].destroy()
+        }
+
+        for (const review in reviews) {
+            const reviewImgs = await ReviewImage.findAll({
+                where: {
+                    reviewId: reviews[review].id
+                }
+            })
+
+            for (const reviewImg in reviewImgs) {
+                await reviewImgs[reviewImg].destroy()
+            }
+            await reviews[review].destroy()
         }
 
         await spot.destroy()
@@ -690,31 +730,30 @@ router.delete('/:id', requireAuth, async (req, res) => {
 
 // Returns all spots
 router.get('/', requireAuth, async (req, res) => {
-    // let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query;
-    // page = parseInt(page)
-    // size = parseInt(size)
+    let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query
 
-    // if (!page) page = 1;
-    // if (!size) size = 20;
+    page = parseInt(page)
+    size = parseInt(size)
+    if(!page) page = 1
+    if(!size) size = 20
 
-    // whereClause = {}
-    // if (minLat) whereClause.minLat = minLat
-    // if (maxLat) whereClause.maxLat = maxLat
-    // if (minLng) whereClause.minLng = minLng
-    // if (maxLng) whereClause.maxLng = maxLng
-    // if (minPrice) whereClause.minPrice = minPrice
-    // if (maxPrice) whereClause.maxPrice = maxPrice
+    let filter = {}
 
-    // const pagination = {}
-    // if (page >= 1 && size >= 1) {
-    //     pagination.limit = size;
-    //     pagination.offset = size * (page - 1)
-    // }
+    if (minLat && maxLat) {
+        filter.lat = { [Op.between]: [parseFloat(minLat), parseFloat(maxLat)] }
+    }
+
+    if (minLng && maxLng) {
+        filter.lng = { [Op.between]: [parseFloat(minLng), parseFloat(maxLng)] }
+    }
+
+    if (minPrice && maxPrice) {
+        filter.price = { [Op.between]: [parseFloat(minPrice), parseFloat(maxPrice)] }
+    }
+
 
     const spots = await Spot.findAll({
-        where: {
-
-        },
+        where: filter,
         attributes: [
             'id',
             'ownerId',
@@ -730,12 +769,12 @@ router.get('/', requireAuth, async (req, res) => {
             'createdAt',
             'updatedAt',
         ],
-        ...pagination
+        offset: size * (page - 1),
+        limit: size,
+        filter
     })
 
     let rslt = []
-    // console.log(rslt)
-
     for (let spot1 of spots) {
         let spot = spot1.toJSON()
         const spotImages = await SpotImage.findAll({
@@ -745,10 +784,12 @@ router.get('/', requireAuth, async (req, res) => {
             },
             attributes: ['url']
         })
-        if(spotImages){
+        if(spotImages > 0){
             spot.previewImage = spotImages[0].url
         }
-        if(!spotImages) spot.previewImage = null
+        else{
+            spot.previewImage = null
+        }
 
         const reviews1 = await Review.findAll({
             where: {
@@ -773,7 +814,7 @@ router.get('/', requireAuth, async (req, res) => {
             rslt.push(spot)
         }
     }
-    res.json({ Spots: rslt , page: page, size: size})
+    res.json({ Spots: rslt, page: page, size: size})
 })
 
 // Post a spot

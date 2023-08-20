@@ -54,7 +54,7 @@ router.post(
       await setTokenCookie(res, safeUser);
 
       return res.json({
-        user: safeUser
+        User: safeUser
       });
     } catch (error) {
       return res.status(500).json({ error: error.message });
@@ -87,7 +87,7 @@ router.get(
         return res.json({
           user: safeUser
         });
-      } else return res.json({ user: null });
+      } else return res.json({ User: null });
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
