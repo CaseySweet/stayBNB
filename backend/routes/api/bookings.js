@@ -108,6 +108,35 @@ router.put('/bookings/:id',requireAuth, async (req, res) => {
         if (findBooking.userId !== req.user.id) {
             throw new Error('Not your booking.');
         }
+        const existingBookings = await Booking.findAll({
+            where: {
+                spotId: findBooking.spotId,
+                [Op.or]: [
+                    {
+                        startDate: {
+                            [Op.between]: [startDate, endDate]
+                        }
+                    },
+                    {
+                        endDate: {
+                            [Op.between]: [startDate, endDate]
+                        }
+                    }
+                ]
+            }
+        })
+
+        if (existingBookings.length > 0) {
+            let err = Error()
+            err = {
+                message: 'Sorry, this spot is already booked for the specified dates',
+                errors: {
+                    startDate: 'Start date conflicts with an existing booking',
+                    endDate: 'End date conflicts with an existing booking'
+                }
+            }
+            return res.status(403).json(err)
+        }
 
         if(startDate) findBooking.startDate = startDate
         if(endDate) findBooking.endDate = endDate

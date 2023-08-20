@@ -50,10 +50,12 @@ router.get('/currentUser', async (req, res) => {
                 },
                 attributes: ['url']
             })
-            if(spotImages){
+            if(spotImages.length > 0){
                 spot.previewImage = spotImages[0].url
             }
-            if(!spotImages) spot.previewImage = null
+            else{
+                spot.previewImage = null
+            }
 
             const reviews1 = await Review.findAll({
                 where: {
@@ -463,6 +465,7 @@ router.get('/:id', async (req, res) => {
         const spotImages = await SpotImage.findAll({
             where: {
                 spotId: spot.id,
+                // preview: true
             },
             attributes: ['id', 'url', 'preview']
         })
@@ -771,7 +774,6 @@ router.get('/', requireAuth, async (req, res) => {
         ],
         offset: size * (page - 1),
         limit: size,
-        filter
     })
 
     let rslt = []
@@ -784,7 +786,7 @@ router.get('/', requireAuth, async (req, res) => {
             },
             attributes: ['url']
         })
-        if(spotImages > 0){
+        if(spotImages.length > 0){
             spot.previewImage = spotImages[0].url
         }
         else{
