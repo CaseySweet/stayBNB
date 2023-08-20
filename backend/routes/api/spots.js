@@ -536,7 +536,7 @@ router.put('/:id', requireAuth, async (req, res) => {
             err = {
                 message: 'Bad Request',
                 errors: {
-                    city: 'State is required'
+                    State: 'State is required'
                 }
             }
             return res.status(400).json(err)
@@ -546,7 +546,7 @@ router.put('/:id', requireAuth, async (req, res) => {
             err = {
                 message: 'Bad Request',
                 errors: {
-                    city: 'Country is required'
+                    Country: 'Country is required'
                 }
             }
             return res.status(400).json(err)
@@ -556,7 +556,7 @@ router.put('/:id', requireAuth, async (req, res) => {
             err = {
                 message: 'Bad Request',
                 errors: {
-                    city: 'Latitude is not valid'
+                    Latitude: 'Latitude is not valid'
                 }
             }
             return res.status(400).json(err)
@@ -566,7 +566,7 @@ router.put('/:id', requireAuth, async (req, res) => {
             err = {
                 message: 'Bad Request',
                 errors: {
-                    city: 'Longitude is not valid'
+                    Longitude: 'Longitude is not valid'
                 }
             }
             return res.status(400).json(err)
@@ -576,7 +576,7 @@ router.put('/:id', requireAuth, async (req, res) => {
             err = {
                 message: 'Bad Request',
                 errors: {
-                    city: 'Name must be less than 50 characters'
+                    Name: 'Name must be less than 50 characters'
                 }
             }
             return res.status(400).json(err)
@@ -586,7 +586,7 @@ router.put('/:id', requireAuth, async (req, res) => {
             err = {
                 message: 'Bad Request',
                 errors: {
-                    city: 'Description is required'
+                    Description: 'Description is required'
                 }
             }
             return res.status(400).json(err)
@@ -596,7 +596,7 @@ router.put('/:id', requireAuth, async (req, res) => {
             err = {
                 message: 'Bad Request',
                 errors: {
-                    city: 'Price per day is required'
+                    Price: 'Price per day is required'
                 }
             }
             return res.status(400).json(err)
