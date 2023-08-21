@@ -21,7 +21,7 @@ router.post(
 
       }
 
-      if (!firstName || !lastName || !email || !username || !check('email').isEmail()) {
+      if (!firstName || !lastName || !email || !username || check('email').isEmail()) {
         let err = Error('')
         err = {
           message: 'Bad Request',

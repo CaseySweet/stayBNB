@@ -50,10 +50,10 @@ router.get('/currentUser', async (req, res) => {
                 },
                 attributes: ['url']
             })
-            if(spotImages.length > 0){
+            if (spotImages.length > 0) {
                 spot.previewImage = spotImages[0].url
             }
-            else{
+            else {
                 spot.previewImage = null
             }
 
@@ -109,7 +109,6 @@ router.delete('/:spotId/images/:imagesId', requireAuth, async (req, res) => {
             }
             return res.status(404).json(err)
         }
-
 
         if (spotImage.Spot.ownerId !== req.user.id) {
             throw new Error('Not your spot.');
@@ -170,7 +169,7 @@ router.get('/:id/bookings', requireAuth, async (req, res) => {
                 ]
             }
         })
-        if(!bookingsNotOwner || !bookingsOwner){
+        if (!bookingsNotOwner || !bookingsOwner) {
             let err = Error()
             err = {
                 Bookings: []
@@ -184,8 +183,7 @@ router.get('/:id/bookings', requireAuth, async (req, res) => {
             })
         }
 
-
-        res.json({Bookings: bookingsOwner})
+        res.json({ Bookings: bookingsOwner })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -279,7 +277,7 @@ router.post('/:id/reviews', requireAuth, async (req, res) => {
             throw new Error('Missing id to create a review.')
         }
 
-        if (!review || stars <= 0 || stars > 5) {
+        if (!review || stars <= 0 || stars > 5 || typeof stars !== 'number') {
             let err = Error()
             err = {
                 message: "Bad Request",
@@ -415,7 +413,6 @@ router.post('/:id/images', async (req, res) => {
         const createImg = await SpotImage.create({ spotId: spot.id, url, preview })
         const { id: imageId } = createImg
 
-
         return res.json({
             id: imageId,
             url: url,
@@ -469,17 +466,17 @@ router.get('/:id', async (req, res) => {
             },
             attributes: ['id', 'url', 'preview']
         })
-        if(spotImages){
+        if (spotImages) {
             spotJson.SpotImages = spotImages
         }
-        if(!spotImages) spotJson.SpotImages = null
+        if (!spotImages) spotJson.SpotImages = null
         const owner = await User.findOne({
             where: {
                 id: spot.ownerId
             },
             attributes: ['id', 'firstName', 'lastName']
         })
-        if(owner){
+        if (owner) {
             spotJson.Owner = owner
         }
         const reviews1 = await Review.findAll({
@@ -516,7 +513,7 @@ router.put('/:id', requireAuth, async (req, res) => {
         const { id } = req.params;
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
-        if(!address){
+        if (!address) {
             return (res.status(400).json({
                 message: "Bad Request",
                 errors: {
@@ -524,7 +521,7 @@ router.put('/:id', requireAuth, async (req, res) => {
                 }
             }))
         }
-        if(!city){
+        if (!city) {
             let err = Error()
             err = {
                 message: 'Bad Request',
@@ -534,93 +531,76 @@ router.put('/:id', requireAuth, async (req, res) => {
             }
             return res.status(400).json(err)
         }
-        if(!state){
+        if (!state) {
             let err = Error()
             err = {
                 message: 'Bad Request',
                 errors: {
-                    State: 'State is required'
+                    state: 'State is required'
                 }
             }
             return res.status(400).json(err)
         }
-        if(!country){
+        if (!country) {
             let err = Error()
             err = {
                 message: 'Bad Request',
                 errors: {
-                    Country: 'Country is required'
+                    country: 'Country is required'
                 }
             }
             return res.status(400).json(err)
         }
-        if(!lat || typeof lat !== 'number'){
+        if (!lat || typeof lat !== 'number') {
             let err = Error()
             err = {
                 message: 'Bad Request',
                 errors: {
-                    Latitude: 'Latitude is not valid'
+                    latitude: 'Latitude is not valid'
                 }
             }
             return res.status(400).json(err)
         }
-        if(lng === '' || typeof lng !== 'number'){
+        if (lng === '' || typeof lng !== 'number') {
             let err = Error()
             err = {
                 message: 'Bad Request',
                 errors: {
-                    Longitude: 'Longitude is not valid'
+                    longitude: 'Longitude is not valid'
                 }
             }
             return res.status(400).json(err)
         }
-        if(!name){
+        if (!name) {
             let err = Error()
             err = {
                 message: 'Bad Request',
                 errors: {
-                    Name: 'Name must be less than 50 characters'
+                    name: 'Name must be less than 50 characters'
                 }
             }
             return res.status(400).json(err)
         }
-        if(!description){
+        if (!description) {
             let err = Error()
             err = {
                 message: 'Bad Request',
                 errors: {
-                    Description: 'Description is required'
+                    description: 'Description is required'
                 }
             }
             return res.status(400).json(err)
         }
-        if(!price || typeof price !== 'number'){
+        if (!price || typeof price !== 'number') {
             let err = Error()
             err = {
                 message: 'Bad Request',
                 errors: {
-                    Price: 'Price per day is required'
+                    price: 'Price per day is required'
                 }
             }
             return res.status(400).json(err)
         }
-
-        // if (address === '' || city === '' || state === '' || country === '' || lat === '' || typeof lat !== 'number' || lng === '' || typeof lng !== 'number' || name === '' || description === '' || !price) {
-        //     return (res.status(400).json({
-        //         message: "Bad Request",
-        //         errors: {
-        //             address: "Street address is required",
-        //             city: "City is required",
-        //             state: "State is required",
-        //             country: "Country is required",
-        //             lat: "Latitude is not valid",
-        //             lng: "Longitude is not valid",
-        //             name: "Name must be less than 50 characters",
-        //             description: "Description is required",
-        //             price: "Price per day is required"
-        //         }
-        //     }))
-        // }
 
         if (id === undefined || id === null || id === '') {
             throw new Error('Not a valid spot id.')
@@ -737,11 +717,10 @@ router.get('/', requireAuth, async (req, res) => {
 
     page = parseInt(page)
     size = parseInt(size)
-    if(!page) page = 1
-    if(!size) size = 20
+    if (!page) page = 1
+    if (!size) size = 20
 
     let filter = {}
-
     if (minLat && maxLat) {
         filter.lat = { [Op.between]: [parseFloat(minLat), parseFloat(maxLat)] }
     }
@@ -753,7 +732,6 @@ router.get('/', requireAuth, async (req, res) => {
     if (minPrice && maxPrice) {
         filter.price = { [Op.between]: [parseFloat(minPrice), parseFloat(maxPrice)] }
     }
-
 
     const spots = await Spot.findAll({
         where: filter,
@@ -786,10 +764,10 @@ router.get('/', requireAuth, async (req, res) => {
             },
             attributes: ['url']
         })
-        if(spotImages.length > 0){
+        if (spotImages.length > 0) {
             spot.previewImage = spotImages[0].url
         }
-        else{
+        else {
             spot.previewImage = null
         }
 
@@ -816,7 +794,7 @@ router.get('/', requireAuth, async (req, res) => {
             rslt.push(spot)
         }
     }
-    res.json({ Spots: rslt, page: page, size: size})
+    res.json({ Spots: rslt, page: page, size: size })
 })
 
 // Post a spot
@@ -824,8 +802,7 @@ router.post('/', requireAuth, async (req, res) => {
     try {
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
-        if (address === '' || city === '' || state === '' || country === '' || lat === '' || typeof lat !== 'number' || lng === '' || typeof lng !== 'number' || name === '' || description === '' || price === '') {
-            console.log(lat)
+        if (address === '' || city === '' || state === '' || country === '' || lat === '' || typeof lat !== 'number' || lng === '' || typeof lng !== 'number' || name === '' || description === '' || price === '' || typeof price !== 'number') {
             return (res.status(400).json({
                 message: "Bad Request",
                 errors: {
@@ -849,6 +826,5 @@ router.post('/', requireAuth, async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 })
-
 
 module.exports = router;
