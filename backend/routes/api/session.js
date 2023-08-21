@@ -72,9 +72,6 @@ router.get(
         const err = new Error()
         err.user = null
         return res.status(200).json(err);
-        // throw new Error(res.status(200).json({
-        //   user:  null
-        // }))
       }
       if (user) {
         const safeUser = {

@@ -173,7 +173,7 @@ router.put('/reviews/:id', requireAuth, async (req, res) => {
             throw new Error('Missing id to create a review.')
         }
 
-        if (!review || stars <= 0 || stars > 5) {
+        if (!review || stars <= 0 || stars > 5 || typeof stars !== 'number') {
             let err = Error()
             err = {
                 message: "Bad Request",
@@ -261,14 +261,11 @@ router.delete('/reviews/:id', requireAuth, async (req, res) => {
             await reviewImgs[reviewImg].destroy();
         }
 
-
-
         await review.destroy()
         res.json({ message: 'Successfully deleted' })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
 })
-
 
 module.exports = router;

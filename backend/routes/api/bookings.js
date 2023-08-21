@@ -9,7 +9,7 @@ const { User } = require('../../db/models');
 
 // Get currentUser bookings
 //CHECK URL
-router.get('/currentUser/bookings',requireAuth, async (req, res) => {
+router.get('/currentUser/bookings', requireAuth, async (req, res) => {
     try {
         const { user } = req;
 
@@ -34,7 +34,7 @@ router.get('/currentUser/bookings',requireAuth, async (req, res) => {
         })
 
         const bookingData = []
-        for(let i = 0; i < bookings.length; i++){
+        for (let i = 0; i < bookings.length; i++) {
             let booking = bookings[i]
             let bookingObj = booking.toJSON()
             let spot = bookingObj.Spot
@@ -44,9 +44,9 @@ router.get('/currentUser/bookings',requireAuth, async (req, res) => {
                     spotId: spot.id
                 }
             })
-            if(previewImage) {
+            if (previewImage) {
                 spot.previewImage = previewImage.url
-            }else{
+            } else {
                 spot.previewImage = null
             }
             bookingData.push(bookingObj)
@@ -61,17 +61,17 @@ router.get('/currentUser/bookings',requireAuth, async (req, res) => {
 })
 
 // Edit a booking by id
-router.put('/bookings/:id',requireAuth, async (req, res) => {
+router.put('/bookings/:id', requireAuth, async (req, res) => {
     try {
         const { user } = req
         const { id } = req.params
         const { startDate, endDate } = req.body
 
-        if(!id || !startDate || !endDate ){
+        if (!id || !startDate || !endDate) {
             throw new Error('Missing information to create a booking.')
         }
 
-        if(endDate < startDate){
+        if (endDate < startDate) {
             let err = Error()
             err = {
                 message: 'Bad Request',
@@ -82,20 +82,20 @@ router.put('/bookings/:id',requireAuth, async (req, res) => {
             return res.status(400).json(err)
         }
 
+        const findBooking = await Booking.findOne({
+            where: {
+                id: id,
+            }
+        })
+
         const currentDate = new Date();
-        if (new Date(endDate) < currentDate) {
+        if (new Date(findBooking.startDate) < currentDate) {
             let err = Error()
             err = {
                 message: 'Past bookings can\'t be modified'
             }
             return res.status(403).json(err)
         }
-
-        const findBooking = await Booking.findOne({
-            where: {
-                id: id,
-            }
-        })
 
         if (!findBooking) {
             let err = Error()
@@ -138,8 +138,8 @@ router.put('/bookings/:id',requireAuth, async (req, res) => {
             return res.status(403).json(err)
         }
 
-        if(startDate) findBooking.startDate = startDate
-        if(endDate) findBooking.endDate = endDate
+        if (startDate) findBooking.startDate = startDate
+        if (endDate) findBooking.endDate = endDate
 
         await findBooking.save()
         res.json(findBooking)
@@ -149,7 +149,7 @@ router.put('/bookings/:id',requireAuth, async (req, res) => {
 })
 
 // Delete a booking
-router.delete('/bookings/:id',requireAuth, async (req, res) => {
+router.delete('/bookings/:id', requireAuth, async (req, res) => {
     try {
         const { id } = req.params
 
@@ -163,7 +163,7 @@ router.delete('/bookings/:id',requireAuth, async (req, res) => {
             }
         })
 
-        if(!findBooking){
+        if (!findBooking) {
             let err = Error()
             err = {
                 message: 'Booking couldn\'t be found'
@@ -180,7 +180,13 @@ router.delete('/bookings/:id',requireAuth, async (req, res) => {
             return res.status(403).json(err)
         }
 
-        if(findBooking.userId !== req.user.id) {
+        const spotOwner = await Spot.findOne({
+            where: {
+                id: findBooking.spotId
+            }
+        })
+
+        if (findBooking.userId !== req.user.id) {
             throw new Error('Not your booking.')
         }
         else {
@@ -193,6 +199,5 @@ router.delete('/bookings/:id',requireAuth, async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 })
-
 
 module.exports = router;
