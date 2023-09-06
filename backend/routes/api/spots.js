@@ -712,7 +712,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
 })
 
 // Returns all spots
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', async (req, res) => {
     let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query
 
     page = parseInt(page)
