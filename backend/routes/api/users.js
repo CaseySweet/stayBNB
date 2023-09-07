@@ -21,7 +21,7 @@ router.post(
 
       }
 
-      if (!firstName || !lastName || !email || !username || check('email').isEmail()) {
+      if (!firstName || !lastName || !email || !username || !check('email').isEmail()) {
         let err = Error('')
         err = {
           message: 'Bad Request',
@@ -80,7 +80,7 @@ router.post(
         user: safeUser
       });
     } catch (error) {
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ message: error.message });
     }
   }
 );
