@@ -71,6 +71,7 @@ router.get('/currentUser/reviews', requireAuth, async (req, res) => {
     }
 })
 
+
 //delete a image of a review
 router.delete('/reviews/:reviewId/images/:imageId', async (req, res) => {
     try {
