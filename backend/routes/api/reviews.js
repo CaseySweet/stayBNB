@@ -6,8 +6,7 @@ const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth')
 const { User } = require('../../db/models');
 const { SpotImage } = require('../../db/models')
 
-// Gets currentUser reviews
-// CHECK URL AGAIN YOU MIGHT WANT TO CHANGE IT
+
 router.get('/currentUser/reviews', requireAuth, async (req, res) => {
     try {
         const { user } = req;
