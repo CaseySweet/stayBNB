@@ -10,7 +10,6 @@ const { SpotImage } = require('../../db/models')
 router.get('/currentUser/reviews', requireAuth, async (req, res) => {
     try {
         const { user } = req;
-
         if (user === null) {
             throw new Error('There is no user signed in.')
         }
@@ -28,44 +27,60 @@ router.get('/currentUser/reviews', requireAuth, async (req, res) => {
                 'createdAt',
                 'updatedAt'
             ],
-            include: [
-                {
-                    model: User,
-                    attributes: ['id', 'firstName', 'lastName']
-                },
-                {
-                    model: Spot,
-                    attributes: [
-                        'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name',
-                        'price'
-                    ],
-                    include: [
-                        {
-                            model: SpotImage,
-                            attributes: [
-                                'url'
-                            ],
-                            where: {
-                                preview: true
-                            },
-                            required: false
-                        }
-                    ]
-                },
-                {
-                    model: ReviewImage,
-                    attributes: ['id', 'url']
-                }
-            ]
         })
+
+        let rslt = []
+        for (let review1 of reviews) {
+            let review = review1.toJSON()
+
+            const user = await User.findByPk(review.userId, {
+                attributes: ['id', 'firstName', 'lastName']
+            })
+
+            const spot = await Spot.findByPk(review.spotId, {
+                attributes: [
+                    'id', 'ownerId', 'address', 'city', 'state', 'country',
+                    'lat', 'lng', 'name', 'price'
+                ]
+            })
+
+            const spotImages = await SpotImage.findAll({
+                where: {
+                    spotId: spot.id,
+                    preview: true
+                },
+                attributes: ['url']
+
+            })
+
+            const reviewImages = await ReviewImage.findAll({
+                where: {
+                    id: review.id
+                },
+                attributes: ['id', 'url']
+            })
+
+            review.User = user
+            review.Spot = {
+                id: spot.id,
+                ownerId: spot.ownerId,
+                address: spot.address,
+                city: spot.city,
+                state: spot.state,
+                country: spot.country,
+                lat: spot.lat,
+                lng: spot.lng,
+                name: spot.name,
+                price: spot.price,
+                previewImage: spotImages.length > 0 ? spotImages[0].url : null
+            }
+            review.ReviewImages = reviewImages
+            rslt.push(review)
+        }
 
         res.json({
-            Reviews: reviews,
-            User: User,
-            Spot: Spot,
-            ReviewImages: ReviewImage
+            Reviews: rslt
         })
-
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
