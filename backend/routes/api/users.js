@@ -12,27 +12,30 @@ router.post(
   async (req, res) => {
     try {
       const { firstName, lastName, email, password, username } = req.body;
-      if (!password || password.length < 6) {
-        let err = Error('')
-        err = {
-          errors: 'Password must be 6 characters or more.'
-        }
-        return res.status(400).json(err)
 
+      let errors = Error()
+      errors = {}
+      if(!firstName){
+        errors.firstName = 'First Name is required.'
       }
-
-      if (!firstName || !lastName || !email || !username || !check('email').isEmail()) {
-        let err = Error('')
-        err = {
+      if(!lastName){
+        errors.lastName = 'Last Name is required.'
+      }
+      if(!email || !check('email').isEmail()){
+        errors.email = 'Invalid email.'
+      }
+      if(!username){
+        errors.username = 'Username is required.'
+      }
+      if(!password || password.length < 6){
+        errors.password = 'Password must be 6 characters or more'
+      }
+      // console.log(Object.keys(errors).length)
+      if(Object.keys(errors).length > 0){
+        return res.status(400).json({
           message: 'Bad Request',
-          errors: {
-            email: "Invalid email",
-            username: "Username is required",
-            firstName: "First Name is required",
-            lastName: "Last Name is required"
-          }
-        }
-        return res.status(400).json(err)
+          errors: errors
+        })
       }
 
       const existingEmail = await User.findOne({
