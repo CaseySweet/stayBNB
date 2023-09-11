@@ -106,7 +106,11 @@ router.put('/bookings/:id', requireAuth, async (req, res) => {
         }
 
         if (findBooking.userId !== req.user.id) {
-            throw new Error('Not your booking.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
         const existingBookings = await Booking.findAll({
             where: {
@@ -185,9 +189,22 @@ router.delete('/bookings/:id', requireAuth, async (req, res) => {
                 id: findBooking.spotId
             }
         })
+        //
+        if(spotOwner.ownerId !== req.user.id){
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
+        }
+        //
 
-        if (findBooking.userId !== req.user.id) {
-            throw new Error('Not your booking.')
+        else if (findBooking.userId !== req.user.id) {
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
         else {
             await findBooking.destroy();
