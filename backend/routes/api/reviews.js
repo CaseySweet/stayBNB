@@ -111,7 +111,11 @@ router.delete('/reviews/:reviewId/images/:imageId', async (req, res) => {
         }
 
         if (review.userId !== req.user.id) {
-            throw new Error('Not your image.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
         await img.destroy()
         res.json({ message: 'Successfully deleted' })
@@ -148,7 +152,11 @@ router.post('/reviews/:id/images', requireAuth, async (req, res) => {
         }
 
         if (reviews.userId !== req.user.id) {
-            throw new Error('Not your review.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         const countReviewImgs = await ReviewImage.count({
@@ -223,7 +231,11 @@ router.put('/reviews/:id', requireAuth, async (req, res) => {
         }
 
         if (findReview.userId !== req.user.id) {
-            throw new Error('Not your review.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         if (review) findReview.review = review
@@ -269,7 +281,11 @@ router.delete('/reviews/:id', requireAuth, async (req, res) => {
         })
 
         if (review.userId !== req.user.id) {
-            throw new Error('Not your review.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         for (const reviewImg in reviewImgs) {

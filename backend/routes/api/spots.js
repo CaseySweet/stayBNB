@@ -111,7 +111,11 @@ router.delete('/:spotId/images/:imagesId', requireAuth, async (req, res) => {
         }
 
         if (spotImage.Spot.ownerId !== req.user.id) {
-            throw new Error('Not your spot.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         await spotImage.destroy()
@@ -224,7 +228,11 @@ router.post('/:id/bookings', requireAuth, async (req, res) => {
         }
 
         if (spot.ownerId === req.user.id) {
-            throw new Error('You can\'t book your own place.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         const existingBookings = await Booking.findAll({
@@ -407,7 +415,11 @@ router.post('/:id/images', async (req, res) => {
             return res.status(404).json(err)
         }
         if (spot.ownerId !== req.user.id) {
-            throw new Error('Not your spot.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         const createImg = await SpotImage.create({ spotId: spot.id, url, preview })
@@ -619,7 +631,11 @@ router.put('/:id', requireAuth, async (req, res) => {
         }
 
         if (spot?.ownerId !== req.user.id) {
-            throw new Error('Not your spot.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         if (address) spot.address = address;
@@ -662,7 +678,11 @@ router.delete('/:id', requireAuth, async (req, res) => {
         }
 
         if (spot.ownerId !== req.user.id) {
-            throw new Error('Not your spot.')
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         const spotImgs = await SpotImage.findAll({
