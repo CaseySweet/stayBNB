@@ -395,6 +395,7 @@ router.post('/:id/images', async (req, res) => {
         const { id } = req.params;
         const { url, preview } = req.body
 
+        console.log(preview)
         if (!url || !preview) {
             throw new Error('Missing information to post image.')
         }
@@ -822,22 +823,42 @@ router.post('/', requireAuth, async (req, res) => {
     try {
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
-        if (address === '' || city === '' || state === '' || country === '' || lat === '' || typeof lat !== 'number' || lng === '' || typeof lng !== 'number' || name === '' || description === '' || price === '' || typeof price !== 'number') {
-            return (res.status(400).json({
-                message: "Bad Request",
-                errors: {
-                    address: "Street address is required",
-                    city: "City is required",
-                    state: "State is required",
-                    country: "Country is required",
-                    lat: "Latitude is not valid",
-                    lng: "Longitude is not valid",
-                    name: "Name must be less than 50 characters",
-                    description: "Description is required",
-                    price: "Price per day is required"
-                }
-            }))
+        let errors = Error()
+        errors = {}
+        if (!address) {
+            errors.address = 'Street address is required'
         }
+        if (!city) {
+            errors.city = 'City is required'
+        }
+        if (!state) {
+            errors.state = 'State is required'
+        }
+        if (!country) {
+            errors.country = 'Country is required'
+        }
+        if (!lat || typeof lat !== 'number') {
+            errors.lat = 'Latitude is not valid'
+        }
+        if (!lng || typeof lng !== 'number') {
+            errors.lng = 'Longitude is not valid'
+        }
+        if (!name || name.length > 50) {
+            errors.name = 'Name must be less than 50 characters'
+        }
+        if (!description) {
+            errors.description = 'Description is required'
+        }
+        if (!price || typeof price !== 'number') {
+            errors.price = 'Price per day is required'
+        }
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({
+                message: 'Bad Request',
+                errors: errors
+            })
+        }
+
         const user = req.user.id
 
         const spot = await Spot.create({ ownerId: user, address, city, state, country, lat, lng, name, description, price });
