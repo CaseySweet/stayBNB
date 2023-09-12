@@ -14,8 +14,6 @@ router.use('/spots', spotsRouter);
 router.use('/', reviewsRouter);
 router.use('/', bookingsRouter);
 
-
-
 router.post('/test', function (req, res) {
     res.json({ requestBody: req.body });
 });

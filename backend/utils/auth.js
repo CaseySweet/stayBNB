@@ -4,7 +4,6 @@ const { User } = require('../db/models');
 
 const { secret, expiresIn } = jwtConfig;
 
-
 // Sends a JWT Cookie
 const setTokenCookie = (res, user) => {
     // Create the token.
@@ -64,11 +63,6 @@ const restoreUser = (req, res, next) => {
 const requireAuth = function (req, _res, next) {
     if (req.user) return next();
 
-    // let err = new Error('');
-    // err.message = "Authentication required"
-    // err.title = 'Authentication required';
-    // err.errors = { message: 'Authentication required' };
-    // err.status = 401;
     return _res.status(401).json({
         message: "Authentication required"
     });

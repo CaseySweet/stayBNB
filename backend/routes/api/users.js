@@ -1,10 +1,13 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { setTokenCookie, requireAuth } = require('../../utils/auth');
+const { setTokenCookie } = require('../../utils/auth');
 const { User } = require('../../db/models');
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
 const router = express.Router();
+
+const validateEmail = (email) => {
+  const checkingEmail = /\S+@\S+\.\S+/
+  return checkingEmail.test(email)
+}
 
 router.post(
   '/signup',
@@ -15,23 +18,23 @@ router.post(
 
       let errors = Error()
       errors = {}
-      if(!firstName){
+      if (!firstName) {
         errors.firstName = 'First Name is required.'
       }
-      if(!lastName){
+      if (!lastName) {
         errors.lastName = 'Last Name is required.'
       }
-      if(!email || !check('email').isEmail()){
+      if (!validateEmail(email) || !email) {
         errors.email = 'Invalid email.'
       }
-      if(!username){
+      if (!username) {
         errors.username = 'Username is required.'
       }
-      if(!password || password.length < 6){
+      if (!password || password.length < 6) {
         errors.password = 'Password must be 6 characters or more'
       }
       // console.log(Object.keys(errors).length)
-      if(Object.keys(errors).length > 0){
+      if (Object.keys(errors).length > 0) {
         return res.status(400).json({
           message: 'Bad Request',
           errors: errors
@@ -83,7 +86,7 @@ router.post(
         user: safeUser
       });
     } catch (error) {
-      return res.status(500).json({ message: error.message });
+      return res.status(400).json({ message: error.message });
     }
   }
 );
