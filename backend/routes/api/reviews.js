@@ -2,15 +2,13 @@ const router = require('express').Router();
 const { Review } = require('../../db/models');
 const { Spot } = require('../../db/models')
 const { ReviewImage } = require('../../db/models')
-const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
+const { requireAuth } = require('../../utils/auth');
 const { User } = require('../../db/models');
 const { SpotImage } = require('../../db/models')
-
 
 router.get('/currentUser/reviews', requireAuth, async (req, res) => {
     try {
         const { user } = req;
-
         if (user === null) {
             throw new Error('There is no user signed in.')
         }
@@ -28,49 +26,64 @@ router.get('/currentUser/reviews', requireAuth, async (req, res) => {
                 'createdAt',
                 'updatedAt'
             ],
-            include: [
-                {
-                    model: User,
-                    attributes: ['id', 'firstName', 'lastName']
-                },
-                {
-                    model: Spot,
-                    attributes: [
-                        'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name',
-                        'price'
-                    ],
-                    include: [
-                        {
-                            model: SpotImage,
-                            attributes: [
-                                'url'
-                            ],
-                            where: {
-                                preview: true
-                            },
-                            required: false
-                        }
-                    ]
-                },
-                {
-                    model: ReviewImage,
-                    attributes: ['id', 'url']
-                }
-            ]
         })
+
+        let rslt = []
+        for (let review1 of reviews) {
+            let review = review1.toJSON()
+
+            const user = await User.findByPk(review.userId, {
+                attributes: ['id', 'firstName', 'lastName']
+            })
+
+            const spot = await Spot.findByPk(review.spotId, {
+                attributes: [
+                    'id', 'ownerId', 'address', 'city', 'state', 'country',
+                    'lat', 'lng', 'name', 'price'
+                ]
+            })
+
+            const spotImages = await SpotImage.findAll({
+                where: {
+                    spotId: spot.id,
+                    preview: true
+                },
+                attributes: ['url']
+
+            })
+
+            const reviewImages = await ReviewImage.findAll({
+                where: {
+                    id: review.id
+                },
+                attributes: ['id', 'url']
+            })
+
+            review.User = user
+            review.Spot = {
+                id: spot.id,
+                ownerId: spot.ownerId,
+                address: spot.address,
+                city: spot.city,
+                state: spot.state,
+                country: spot.country,
+                lat: spot.lat,
+                lng: spot.lng,
+                name: spot.name,
+                price: spot.price,
+                previewImage: spotImages.length > 0 ? spotImages[0].url : null
+            }
+            review.ReviewImages = reviewImages
+            rslt.push(review)
+        }
 
         res.json({
-            Reviews: reviews,
-            User: User,
-            Spot: Spot,
-            ReviewImages: ReviewImage
+            Reviews: rslt
         })
-
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
 })
-
 
 //delete a image of a review
 router.delete('/reviews/:reviewId/images/:imageId', async (req, res) => {
@@ -96,7 +109,11 @@ router.delete('/reviews/:reviewId/images/:imageId', async (req, res) => {
         }
 
         if (review.userId !== req.user.id) {
-            throw new Error('Not your image.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
         await img.destroy()
         res.json({ message: 'Successfully deleted' })
@@ -133,7 +150,11 @@ router.post('/reviews/:id/images', requireAuth, async (req, res) => {
         }
 
         if (reviews.userId !== req.user.id) {
-            throw new Error('Not your review.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         const countReviewImgs = await ReviewImage.count({
@@ -173,18 +194,6 @@ router.put('/reviews/:id', requireAuth, async (req, res) => {
             throw new Error('Missing id to create a review.')
         }
 
-        if (!review || stars <= 0 || stars > 5 || typeof stars !== 'number') {
-            let err = Error()
-            err = {
-                message: "Bad Request",
-                errors: {
-                    review: "Review text is required",
-                    stars: "Stars must be an integer from 1 to 5"
-                }
-            }
-            return res.status(400).json(err)
-        }
-
         const findReview = await Review.findOne({
             where: {
                 id: id
@@ -207,8 +216,27 @@ router.put('/reviews/:id', requireAuth, async (req, res) => {
             return res.status(404).json(err)
         }
 
+        let errors = Error()
+        errors = {}
+        if (!review) {
+            errors.review = 'Review text is required'
+        }
+        if (!stars || stars <= 0 || stars > 5 || typeof stars !== 'number') {
+            errors.stars = 'Stars must be an integer from 1 to 5'
+        }
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({
+                message: 'Bad Request',
+                errors: errors
+            })
+        }
+
         if (findReview.userId !== req.user.id) {
-            throw new Error('Not your review.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         if (review) findReview.review = review
@@ -254,7 +282,11 @@ router.delete('/reviews/:id', requireAuth, async (req, res) => {
         })
 
         if (review.userId !== req.user.id) {
-            throw new Error('Not your review.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         for (const reviewImg in reviewImgs) {

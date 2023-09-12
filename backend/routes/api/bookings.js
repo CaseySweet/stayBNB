@@ -1,11 +1,9 @@
 const router = require('express').Router();
 const { Booking } = require('../../db/models')
 const { Spot } = require('../../db/models')
-const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
+const { requireAuth } = require('../../utils/auth');
 const { Op } = require('sequelize')
 const { SpotImage } = require('../../db/models')
-const { sequelize } = require('../../db/models')
-const { User } = require('../../db/models');
 
 // Get currentUser bookings
 //CHECK URL
@@ -106,7 +104,11 @@ router.put('/bookings/:id', requireAuth, async (req, res) => {
         }
 
         if (findBooking.userId !== req.user.id) {
-            throw new Error('Not your booking.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
         const existingBookings = await Booking.findAll({
             where: {
@@ -186,15 +188,18 @@ router.delete('/bookings/:id', requireAuth, async (req, res) => {
             }
         })
 
-        if (findBooking.userId !== req.user.id) {
-            throw new Error('Not your booking.')
-        }
-        else {
+        if (findBooking.userId === req.user.id || spotOwner.ownerId === req.user.id) {
             await findBooking.destroy();
             res.json({ message: 'Successfully deleted' })
         }
-        res.json(findBooking)
 
+        else {
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
+        }
     } catch (error) {
         res.status(500).json({ error: error.message })
     }

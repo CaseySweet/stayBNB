@@ -4,13 +4,12 @@ const { User } = require('../../db/models');
 const { SpotImage } = require('../../db/models')
 const { requireAuth } = require('../../utils/auth');
 const { Review } = require('../../db/models');
-const { sequelize } = require('../../db/models')
 const { ReviewImage } = require('../../db/models')
 const { Booking } = require('../../db/models')
 const { Op } = require('sequelize')
 
 // Get spots of currentUser
-router.get('/currentUser', async (req, res) => {
+router.get('/currentUser', requireAuth, async (req, res) => {
     try {
         const { user } = req
 
@@ -111,7 +110,11 @@ router.delete('/:spotId/images/:imagesId', requireAuth, async (req, res) => {
         }
 
         if (spotImage.Spot.ownerId !== req.user.id) {
-            throw new Error('Not your spot.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         await spotImage.destroy()
@@ -224,7 +227,11 @@ router.post('/:id/bookings', requireAuth, async (req, res) => {
         }
 
         if (spot.ownerId === req.user.id) {
-            throw new Error('You can\'t book your own place.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         const existingBookings = await Booking.findAll({
@@ -277,16 +284,19 @@ router.post('/:id/reviews', requireAuth, async (req, res) => {
             throw new Error('Missing id to create a review.')
         }
 
-        if (!review || stars <= 0 || stars > 5 || typeof stars !== 'number') {
-            let err = Error()
-            err = {
-                message: "Bad Request",
-                errors: {
-                    review: "Review text is required",
-                    stars: "Stars must be an integer from 1 to 5"
-                }
-            }
-            return res.status(400).json(err)
+        let errors = Error()
+        errors = {}
+        if (!review) {
+            errors.review = 'Review text is required'
+        }
+        if (!stars || stars <= 0 || stars > 5 || typeof stars !== 'number') {
+            errors.stars = 'Stars must be an integer from 1 to 5'
+        }
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({
+                message: 'Bad Request',
+                errors: errors
+            })
         }
 
         const spot = await Spot.findOne({
@@ -329,7 +339,7 @@ router.post('/:id/reviews', requireAuth, async (req, res) => {
 })
 
 // Get all reviews by spot id
-router.get('/:id/reviews', async (req, res) => {
+router.get('/:id/reviews', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -387,7 +397,7 @@ router.post('/:id/images', async (req, res) => {
         const { id } = req.params;
         const { url, preview } = req.body
 
-        if (!url || !preview) {
+        if (!url || preview === undefined) {
             throw new Error('Missing information to post image.')
         }
 
@@ -407,7 +417,11 @@ router.post('/:id/images', async (req, res) => {
             return res.status(404).json(err)
         }
         if (spot.ownerId !== req.user.id) {
-            throw new Error('Not your spot.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         const createImg = await SpotImage.create({ spotId: spot.id, url, preview })
@@ -513,93 +527,41 @@ router.put('/:id', requireAuth, async (req, res) => {
         const { id } = req.params;
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
+
+        let errors = Error()
+        errors = {}
         if (!address) {
-            return (res.status(400).json({
-                message: "Bad Request",
-                errors: {
-                    address: "Street address is required"
-                }
-            }))
+            errors.address = 'Street address is required'
         }
         if (!city) {
-            let err = Error()
-            err = {
-                message: 'Bad Request',
-                errors: {
-                    city: 'City is required'
-                }
-            }
-            return res.status(400).json(err)
+            errors.city = 'City is required'
         }
         if (!state) {
-            let err = Error()
-            err = {
-                message: 'Bad Request',
-                errors: {
-                    state: 'State is required'
-                }
-            }
-            return res.status(400).json(err)
+            errors.state = 'State is required'
         }
         if (!country) {
-            let err = Error()
-            err = {
-                message: 'Bad Request',
-                errors: {
-                    country: 'Country is required'
-                }
-            }
-            return res.status(400).json(err)
+            errors.country = 'Country is required'
         }
         if (!lat || typeof lat !== 'number') {
-            let err = Error()
-            err = {
-                message: 'Bad Request',
-                errors: {
-                    latitude: 'Latitude is not valid'
-                }
-            }
-            return res.status(400).json(err)
+            errors.lat = 'Latitude is not valid'
         }
         if (lng === '' || typeof lng !== 'number') {
-            let err = Error()
-            err = {
-                message: 'Bad Request',
-                errors: {
-                    longitude: 'Longitude is not valid'
-                }
-            }
-            return res.status(400).json(err)
+            errors.lng = 'Longitude is not valid'
         }
-        if (!name) {
-            let err = Error()
-            err = {
-                message: 'Bad Request',
-                errors: {
-                    name: 'Name must be less than 50 characters'
-                }
-            }
-            return res.status(400).json(err)
+        if (!name || name.length > 50) {
+            errors.name = 'Name must be less than 50 characters'
         }
         if (!description) {
-            let err = Error()
-            err = {
-                message: 'Bad Request',
-                errors: {
-                    description: 'Description is required'
-                }
-            }
-            return res.status(400).json(err)
+            errors.description = 'Description is required'
         }
         if (!price || typeof price !== 'number') {
-            let err = Error()
-            err = {
+            errors.price = 'Price per day is required'
+        }
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({
                 message: 'Bad Request',
-                errors: {
-                    price: 'Price per day is required'
-                }
-            }
-            return res.status(400).json(err)
+                errors: errors
+            })
         }
 
         if (id === undefined || id === null || id === '') {
@@ -619,7 +581,11 @@ router.put('/:id', requireAuth, async (req, res) => {
         }
 
         if (spot?.ownerId !== req.user.id) {
-            throw new Error('Not your spot.');
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         if (address) spot.address = address;
@@ -662,7 +628,11 @@ router.delete('/:id', requireAuth, async (req, res) => {
         }
 
         if (spot.ownerId !== req.user.id) {
-            throw new Error('Not your spot.')
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
         }
 
         const spotImgs = await SpotImage.findAll({
@@ -802,22 +772,42 @@ router.post('/', requireAuth, async (req, res) => {
     try {
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
-        if (address === '' || city === '' || state === '' || country === '' || lat === '' || typeof lat !== 'number' || lng === '' || typeof lng !== 'number' || name === '' || description === '' || price === '' || typeof price !== 'number') {
-            return (res.status(400).json({
-                message: "Bad Request",
-                errors: {
-                    address: "Street address is required",
-                    city: "City is required",
-                    state: "State is required",
-                    country: "Country is required",
-                    lat: "Latitude is not valid",
-                    lng: "Longitude is not valid",
-                    name: "Name must be less than 50 characters",
-                    description: "Description is required",
-                    price: "Price per day is required"
-                }
-            }))
+        let errors = Error()
+        errors = {}
+        if (!address) {
+            errors.address = 'Street address is required'
         }
+        if (!city) {
+            errors.city = 'City is required'
+        }
+        if (!state) {
+            errors.state = 'State is required'
+        }
+        if (!country) {
+            errors.country = 'Country is required'
+        }
+        if (!lat || typeof lat !== 'number') {
+            errors.lat = 'Latitude is not valid'
+        }
+        if (!lng || typeof lng !== 'number') {
+            errors.lng = 'Longitude is not valid'
+        }
+        if (!name || name.length > 50) {
+            errors.name = 'Name must be less than 50 characters'
+        }
+        if (!description) {
+            errors.description = 'Description is required'
+        }
+        if (!price || typeof price !== 'number') {
+            errors.price = 'Price per day is required'
+        }
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({
+                message: 'Bad Request',
+                errors: errors
+            })
+        }
+
         const user = req.user.id
 
         const spot = await Spot.create({ ownerId: user, address, city, state, country, lat, lng, name, description, price });

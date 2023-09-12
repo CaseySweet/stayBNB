@@ -1,9 +1,7 @@
 const express = require('express');
 const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
-const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
+const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { User } = require('../../db/models');
 
 const router = express.Router();
@@ -16,16 +14,19 @@ router.post(
     try {
       const { credential, password } = req.body;
 
-      if (!credential || !password) {
-        let err = Error('')
-        err = {
+      let errors = Error()
+      errors = {}
+      if (!credential) {
+        errors.credential = 'Email or username is required'
+      }
+      if (!password) {
+        errors.password = 'Password is required'
+      }
+      if (Object.keys(errors).length > 0) {
+        return res.status(400).json({
           message: 'Bad Request',
-          errors: {
-            credential: "Email or username is required",
-            password: "Password is required"
-          }
-        }
-        return res.status(400).json(err)
+          errors: errors
+        })
       }
 
       const user = await User.unscoped().findOne({
