@@ -2,10 +2,9 @@ const router = require('express').Router();
 const { Review } = require('../../db/models');
 const { Spot } = require('../../db/models')
 const { ReviewImage } = require('../../db/models')
-const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
+const { requireAuth } = require('../../utils/auth');
 const { User } = require('../../db/models');
 const { SpotImage } = require('../../db/models')
-
 
 router.get('/currentUser/reviews', requireAuth, async (req, res) => {
     try {
@@ -85,7 +84,6 @@ router.get('/currentUser/reviews', requireAuth, async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 })
-
 
 //delete a image of a review
 router.delete('/reviews/:reviewId/images/:imageId', async (req, res) => {
@@ -196,18 +194,6 @@ router.put('/reviews/:id', requireAuth, async (req, res) => {
             throw new Error('Missing id to create a review.')
         }
 
-        if (!review || stars <= 0 || stars > 5 || typeof stars !== 'number') {
-            let err = Error()
-            err = {
-                message: "Bad Request",
-                errors: {
-                    review: "Review text is required",
-                    stars: "Stars must be an integer from 1 to 5"
-                }
-            }
-            return res.status(400).json(err)
-        }
-
         const findReview = await Review.findOne({
             where: {
                 id: id
@@ -228,6 +214,21 @@ router.put('/reviews/:id', requireAuth, async (req, res) => {
                 message: 'Review couldn\'t be found'
             }
             return res.status(404).json(err)
+        }
+
+        let errors = Error()
+        errors = {}
+        if (!review) {
+            errors.review = 'Review text is required'
+        }
+        if (!stars || stars <= 0 || stars > 5 || typeof stars !== 'number') {
+            errors.stars = 'Stars must be an integer from 1 to 5'
+        }
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({
+                message: 'Bad Request',
+                errors: errors
+            })
         }
 
         if (findReview.userId !== req.user.id) {
