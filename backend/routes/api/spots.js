@@ -542,10 +542,10 @@ router.put('/:id', requireAuth, async (req, res) => {
         if (!country) {
             errors.country = 'Country is required'
         }
-        if (!lat || typeof lat !== 'number') {
+        if (lat > 90 || lat < -90) {
             errors.lat = 'Latitude is not valid'
         }
-        if (lng === '' || typeof lng !== 'number') {
+        if (lng < -180 || lng > 180) {
             errors.lng = 'Longitude is not valid'
         }
         if (!name || name.length > 50) {
@@ -554,7 +554,7 @@ router.put('/:id', requireAuth, async (req, res) => {
         if (!description) {
             errors.description = 'Description is required'
         }
-        if (!price || typeof price !== 'number') {
+        if (!price || price < 0) {
             errors.price = 'Price per day is required'
         }
         if (Object.keys(errors).length > 0) {
@@ -845,10 +845,10 @@ router.post('/', requireAuth, async (req, res) => {
         if (!country) {
             errors.country = 'Country is required'
         }
-        if (!lat || typeof lat !== 'number') {
+        if (!lat ||lat > 90 || lat < -90) {
             errors.lat = 'Latitude is not valid'
         }
-        if (!lng || typeof lng !== 'number') {
+        if (!lng || lng < -180 || lng > 180) {
             errors.lng = 'Longitude is not valid'
         }
         if (!name || name.length > 50) {
@@ -857,7 +857,7 @@ router.post('/', requireAuth, async (req, res) => {
         if (!description) {
             errors.description = 'Description is required'
         }
-        if (!price || typeof price !== 'number') {
+        if (!price || price < 0) {
             errors.price = 'Price per day is required'
         }
         if (Object.keys(errors).length > 0) {
