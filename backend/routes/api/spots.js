@@ -683,91 +683,150 @@ router.delete('/:id', requireAuth, async (req, res) => {
 
 // Returns all spots
 router.get('/', async (req, res) => {
-    let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query
+    try {
 
-    page = parseInt(page)
-    size = parseInt(size)
-    if (!page) page = 1
-    if (!size) size = 20
+        let errors = Error()
+        errors = {}
+        let filter = {}
 
-    let filter = {}
-    if (minLat && maxLat) {
-        filter.lat = { [Op.between]: [parseFloat(minLat), parseFloat(maxLat)] }
-    }
-
-    if (minLng && maxLng) {
-        filter.lng = { [Op.between]: [parseFloat(minLng), parseFloat(maxLng)] }
-    }
-
-    if (minPrice && maxPrice) {
-        filter.price = { [Op.between]: [parseFloat(minPrice), parseFloat(maxPrice)] }
-    }
-
-    const spots = await Spot.findAll({
-        where: filter,
-        attributes: [
-            'id',
-            'ownerId',
-            'address',
-            'city',
-            'state',
-            'country',
-            'lat',
-            'lng',
-            'name',
-            'description',
-            'price',
-            'createdAt',
-            'updatedAt',
-        ],
-        offset: size * (page - 1),
-        limit: size,
-    })
-
-    let rslt = []
-    for (let spot1 of spots) {
-        let spot = spot1.toJSON()
-        const spotImages = await SpotImage.findAll({
-            where: {
-                spotId: spot.id,
-                preview: true
-            },
-            attributes: ['url']
-        })
-        if (spotImages.length > 0) {
-            spot.previewImage = spotImages[0].url
+        let { minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query
+        const page = req.query.page === undefined ? 1 : parseInt(req.query.page)
+        const size = req.query.size === undefined ? 20 : parseInt(req.query.size)
+        if (page < 1) {
+            errors.page = "Page must be greater than or equal to 1"
         }
-        else {
-            spot.previewImage = null
+        if (size < 1) {
+            errors.size = "Size must be greater than or equal to 1"
         }
 
-        const reviews1 = await Review.findAll({
-            where: {
-                spotId: spot.id
-            },
-            attributes: ['stars']
-        })
-
-        if (reviews1.length) {
-            let sum = 0
-
-            for (let review of reviews1) {
-                let reviewObj = review.toJSON()
-                sum += reviewObj.stars
+// Lat
+        if (minLat) {
+            filter.lat = { [Op.gte]: minLat }
+        }
+        if (maxLat) {
+            if (filter.lat) {
+                filter.lat = { [Op.between]: [minLat, maxLat] }
+            } else {
+                filter.lat = { [Op.lte]: maxLat }
             }
-            let avg = Number((sum / reviews1.length).toFixed(2))
-
-            spot.avgRating = avg
-            rslt.push(spot)
-        } else {
-            spot.avgRating = null
-            rslt.push(spot)
         }
+        if (maxLat > 90) {
+            errors.maxLat = "Maximum latitude is invalid"
+        }
+        if (minLat < -90) {
+            errors.minLat = "Minimum latitude is invalid"
+        }
+// Lng
+        if (minLng) {
+            filter.lng = { [Op.gte]: minLng }
+        }
+        if (maxLng) {
+            if (filter.lng) {
+                filter.lng = { [Op.between]: [minLng, maxLng] }
+            } else {
+                filter.lng = { [Op.lte]: maxLng }
+            }
+        }
+        if (minLng < -180) {
+            errors.minLng = "Minimum longitude is invalid"
+        }
+        if (maxLng > 180) {
+            errors.maxLng = "Maximum longitude is invalid"
+        }
+// Price
+        if (minPrice) {
+            filter.price = { [Op.gte]: minPrice }
+        }
+        if (maxPrice) {
+            if (filter.price) {
+                filter.price = { [Op.between]: [minPrice, maxPrice] }
+            }
+            else {
+                filter.price = { [Op.lte]: maxPrice }
+            }
+        }
+        if (minPrice < 0) {
+            errors.minPrice = "Minimum price must be greater than or equal to 0"
+        }
+        if (maxPrice < 0) {
+            errors.maxPrice = "Maximum price must be greater than or equal to 0"
+        }
+
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({
+                message: 'Bad Request',
+                errors: errors
+            })
+        }
+
+        const spots = await Spot.findAll({
+            where: filter,
+            attributes: [
+                'id',
+                'ownerId',
+                'address',
+                'city',
+                'state',
+                'country',
+                'lat',
+                'lng',
+                'name',
+                'description',
+                'price',
+                'createdAt',
+                'updatedAt',
+            ],
+            offset: size * (page - 1),
+            limit: size,
+        })
+
+        let rslt = []
+        for (let spot1 of spots) {
+            let spot = spot1.toJSON()
+            const spotImages = await SpotImage.findAll({
+                where: {
+                    spotId: spot.id,
+                    preview: true
+                },
+                attributes: ['url']
+            })
+            if (spotImages.length > 0) {
+                spot.previewImage = spotImages[0].url
+            }
+            else {
+                spot.previewImage = null
+            }
+
+            const reviews1 = await Review.findAll({
+                where: {
+                    spotId: spot.id
+                },
+                attributes: ['stars']
+            })
+
+            if (reviews1.length) {
+                let sum = 0
+
+                for (let review of reviews1) {
+                    let reviewObj = review.toJSON()
+                    sum += reviewObj.stars
+                }
+                let avg = Number((sum / reviews1.length).toFixed(2))
+
+                spot.avgRating = avg
+                rslt.push(spot)
+            } else {
+                spot.avgRating = null
+                rslt.push(spot)
+            }
+        }
+        res.json({ Spots: rslt, page: page, size: size })
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
     }
-    res.json({ Spots: rslt, page: page, size: size })
 })
 
-// Post a spot
+    // Post a spot
 router.post('/', requireAuth, async (req, res) => {
     try {
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
