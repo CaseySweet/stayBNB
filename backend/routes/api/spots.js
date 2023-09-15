@@ -241,16 +241,39 @@ router.post('/:id/bookings', requireAuth, async (req, res) => {
                     {
                         startDate: {
                             [Op.between]: [startDate, endDate]
+                        },
+                        endDate: {
+                            [Op.between]: [startDate, endDate]
                         }
                     },
                     {
+                        startDate: {
+                            [Op.lte]: endDate
+                        },
+                        endDate: {
+                            [Op.gte]: startDate
+                        }
+                    },
+                    {
+                        startDate: {
+                            [Op.lte]: endDate
+                        },
                         endDate: {
                             [Op.between]: [startDate, endDate]
+                        }
+                    },
+                    {
+                        startDate: {
+                            [Op.between]: [startDate, endDate]
+                        },
+                        endDate: {
+                            [Op.gte]: startDate
                         }
                     }
                 ]
             }
         })
+        // console.log(existingBookings)
 
         if (existingBookings.length > 0) {
             let err = Error()
@@ -416,6 +439,17 @@ router.post('/:id/images', async (req, res) => {
             }
             return res.status(404).json(err)
         }
+
+        const existingImage = await SpotImage.findOne({
+            where: {
+                spotId: spot.id,
+                preview: true
+            }
+        })
+        console.log(existingImage)
+        if(existingImage){
+            throw new Error('Spot already has a preview image')
+        }
         if (spot.ownerId !== req.user.id) {
             let err = Error()
             err = {
@@ -423,6 +457,7 @@ router.post('/:id/images', async (req, res) => {
             }
             return res.status(403).json(err)
         }
+
 
         const createImg = await SpotImage.create({ spotId: spot.id, url, preview })
         const { id: imageId } = createImg
@@ -542,10 +577,10 @@ router.put('/:id', requireAuth, async (req, res) => {
         if (!country) {
             errors.country = 'Country is required'
         }
-        if (!lat || typeof lat !== 'number') {
+        if (lat > 90 || lat < -90) {
             errors.lat = 'Latitude is not valid'
         }
-        if (lng === '' || typeof lng !== 'number') {
+        if (lng < -180 || lng > 180) {
             errors.lng = 'Longitude is not valid'
         }
         if (!name || name.length > 50) {
@@ -554,7 +589,7 @@ router.put('/:id', requireAuth, async (req, res) => {
         if (!description) {
             errors.description = 'Description is required'
         }
-        if (!price || typeof price !== 'number') {
+        if (!price || price < 0) {
             errors.price = 'Price per day is required'
         }
         if (Object.keys(errors).length > 0) {
@@ -845,10 +880,10 @@ router.post('/', requireAuth, async (req, res) => {
         if (!country) {
             errors.country = 'Country is required'
         }
-        if (!lat || typeof lat !== 'number') {
+        if (!lat ||lat > 90 || lat < -90) {
             errors.lat = 'Latitude is not valid'
         }
-        if (!lng || typeof lng !== 'number') {
+        if (!lng || lng < -180 || lng > 180) {
             errors.lng = 'Longitude is not valid'
         }
         if (!name || name.length > 50) {
@@ -857,7 +892,7 @@ router.post('/', requireAuth, async (req, res) => {
         if (!description) {
             errors.description = 'Description is required'
         }
-        if (!price || typeof price !== 'number') {
+        if (!price || price < 0) {
             errors.price = 'Price per day is required'
         }
         if (Object.keys(errors).length > 0) {
