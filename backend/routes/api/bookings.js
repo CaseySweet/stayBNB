@@ -69,6 +69,20 @@ router.put('/bookings/:id', requireAuth, async (req, res) => {
             throw new Error('Missing information to create a booking.')
         }
 
+        const findBooking = await Booking.findOne({
+            where: {
+                id: id,
+            }
+        })
+
+        if (!findBooking) {
+            let err = Error()
+            err = {
+                message: 'Booking couldn\'t be found'
+            }
+            return res.status(404).json(err)
+        }
+
         if (endDate < startDate) {
             let err = Error()
             err = {
@@ -80,12 +94,6 @@ router.put('/bookings/:id', requireAuth, async (req, res) => {
             return res.status(400).json(err)
         }
 
-        const findBooking = await Booking.findOne({
-            where: {
-                id: id,
-            }
-        })
-
         const currentDate = new Date();
         if (new Date(findBooking.startDate) < currentDate) {
             let err = Error()
@@ -93,14 +101,6 @@ router.put('/bookings/:id', requireAuth, async (req, res) => {
                 message: 'Past bookings can\'t be modified'
             }
             return res.status(403).json(err)
-        }
-
-        if (!findBooking) {
-            let err = Error()
-            err = {
-                message: 'Booking couldn\'t be found'
-            }
-            return res.status(404).json(err)
         }
 
         if (findBooking.userId !== req.user.id) {
