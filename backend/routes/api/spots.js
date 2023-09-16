@@ -273,8 +273,6 @@ router.post('/:id/bookings', requireAuth, async (req, res) => {
                 ]
             }
         })
-        // console.log(existingBookings)
-
         if (existingBookings.length > 0) {
             let err = Error()
             err = {
@@ -446,8 +444,8 @@ router.post('/:id/images', async (req, res) => {
                 preview: true
             }
         })
-        console.log(existingImage)
-        if(existingImage){
+        // console.log(existingImage.preview)
+        if (existingImage) {
             throw new Error('Spot already has a preview image')
         }
         if (spot.ownerId !== req.user.id) {
@@ -734,7 +732,7 @@ router.get('/', async (req, res) => {
             errors.size = "Size must be greater than or equal to 1"
         }
 
-// Lat
+        // Lat
         if (minLat) {
             filter.lat = { [Op.gte]: minLat }
         }
@@ -751,7 +749,7 @@ router.get('/', async (req, res) => {
         if (minLat < -90) {
             errors.minLat = "Minimum latitude is invalid"
         }
-// Lng
+        // Lng
         if (minLng) {
             filter.lng = { [Op.gte]: minLng }
         }
@@ -768,7 +766,7 @@ router.get('/', async (req, res) => {
         if (maxLng > 180) {
             errors.maxLng = "Maximum longitude is invalid"
         }
-// Price
+        // Price
         if (minPrice) {
             filter.price = { [Op.gte]: minPrice }
         }
@@ -861,7 +859,7 @@ router.get('/', async (req, res) => {
     }
 })
 
-    // Post a spot
+// Post a spot
 router.post('/', requireAuth, async (req, res) => {
     try {
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
@@ -880,7 +878,7 @@ router.post('/', requireAuth, async (req, res) => {
         if (!country) {
             errors.country = 'Country is required'
         }
-        if (!lat ||lat > 90 || lat < -90) {
+        if (!lat || lat > 90 || lat < -90) {
             errors.lat = 'Latitude is not valid'
         }
         if (!lng || lng < -180 || lng > 180) {
