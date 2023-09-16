@@ -93,7 +93,7 @@ information.
 
 * Require Authentication: false
 * Request
-  * Method: GET
+  * Method: POST
   * URL: /api/login
   * Headers:
     * Content-Type: application/json
