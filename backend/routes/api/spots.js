@@ -575,10 +575,10 @@ router.put('/:id', requireAuth, async (req, res) => {
         if (!country) {
             errors.country = 'Country is required'
         }
-        if (lat > 90 || lat < -90) {
+        if (!lat || lat > 90 || lat < -90 || typeof lat !== 'number') {
             errors.lat = 'Latitude is not valid'
         }
-        if (lng < -180 || lng > 180) {
+        if (!lng || lng < -180 || lng > 180 || typeof lng !== 'number') {
             errors.lng = 'Longitude is not valid'
         }
         if (!name || name.length > 50) {
@@ -878,10 +878,10 @@ router.post('/', requireAuth, async (req, res) => {
         if (!country) {
             errors.country = 'Country is required'
         }
-        if (!lat || lat > 90 || lat < -90) {
+        if (!lat || lat > 90 || lat < -90 || typeof lat !== 'number') {
             errors.lat = 'Latitude is not valid'
         }
-        if (!lng || lng < -180 || lng > 180) {
+        if (!lng || lng < -180 || lng > 180 || typeof lng !== 'number') {
             errors.lng = 'Longitude is not valid'
         }
         if (!name || name.length > 50) {
