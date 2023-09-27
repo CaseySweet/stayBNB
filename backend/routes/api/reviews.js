@@ -86,7 +86,7 @@ router.get('/currentUser/reviews', requireAuth, async (req, res) => {
 })
 
 //delete a image of a review
-router.delete('/reviews/:reviewId/images/:imageId', async (req, res) => {
+router.delete('/reviews/:reviewId/images/:imageId', requireAuth, async (req, res) => {
     try {
         const { reviewId, imageId } = req.params
 
@@ -216,6 +216,14 @@ router.put('/reviews/:id', requireAuth, async (req, res) => {
             return res.status(404).json(err)
         }
 
+        if (findReview.userId !== req.user.id) {
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
+        }
+
         let errors = Error()
         errors = {}
         if (!review) {
@@ -229,14 +237,6 @@ router.put('/reviews/:id', requireAuth, async (req, res) => {
                 message: 'Bad Request',
                 errors: errors
             })
-        }
-
-        if (findReview.userId !== req.user.id) {
-            let err = Error()
-            err = {
-                message: 'Forbidden'
-            }
-            return res.status(403).json(err)
         }
 
         if (review) findReview.review = review
