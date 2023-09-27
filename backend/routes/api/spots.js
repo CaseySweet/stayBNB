@@ -126,7 +126,6 @@ router.delete('/:spotId/images/:imagesId', requireAuth, async (req, res) => {
 })
 
 //get all bookings based on spot id
-//CHECK URL
 router.get('/:id/bookings', requireAuth, async (req, res) => {
     try {
         const { id } = req.params
@@ -295,7 +294,6 @@ router.post('/:id/bookings', requireAuth, async (req, res) => {
 })
 
 // Make review for spot off spots id
-//CHECK URL CHANGE IT
 router.post('/:id/reviews', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
