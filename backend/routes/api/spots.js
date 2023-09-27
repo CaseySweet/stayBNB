@@ -481,7 +481,6 @@ router.post('/:id/images', requireAuth, async (req, res) => {
             }
         }
 
-
         // const existingImage = await SpotImage.findOne({
         //     where: {
         //         spotId: spot.id,
@@ -596,6 +595,29 @@ router.put('/:id', requireAuth, async (req, res) => {
         const { id } = req.params;
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
+        if (id === undefined || id === null || id === '') {
+            throw new Error('Not a valid spot id.')
+        }
+        const spot = await Spot.findOne({
+            where: {
+                id: id
+            }
+        })
+        if (!spot) {
+            let err = Error()
+            err = {
+                message: 'Spot couldn\'t be found'
+            }
+            return res.status(404).json(err)
+        }
+
+        if (spot?.ownerId !== req.user.id) {
+            let err = Error()
+            err = {
+                message: 'Forbidden'
+            }
+            return res.status(403).json(err)
+        }
 
         let errors = Error()
         errors = {}
@@ -631,30 +653,6 @@ router.put('/:id', requireAuth, async (req, res) => {
                 message: 'Bad Request',
                 errors: errors
             })
-        }
-
-        if (id === undefined || id === null || id === '') {
-            throw new Error('Not a valid spot id.')
-        }
-        const spot = await Spot.findOne({
-            where: {
-                id: id
-            }
-        })
-        if (!spot) {
-            let err = Error()
-            err = {
-                message: 'Spot couldn\'t be found'
-            }
-            return res.status(404).json(err)
-        }
-
-        if (spot?.ownerId !== req.user.id) {
-            let err = Error()
-            err = {
-                message: 'Forbidden'
-            }
-            return res.status(403).json(err)
         }
 
         if (address) spot.address = address;
