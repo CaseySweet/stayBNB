@@ -413,7 +413,7 @@ router.get('/:id/reviews', requireAuth, async (req, res) => {
 })
 
 //post image to spot
-router.post('/:id/images', async (req, res) => {
+router.post('/:id/images', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const { url, preview } = req.body
@@ -425,11 +425,13 @@ router.post('/:id/images', async (req, res) => {
         if (id === undefined || id === null || id === '') {
             throw new Error('Not a valid spot id.')
         }
+
         const spot = await Spot.findOne({
             where: {
                 id: id
             }
         })
+
         if (!spot) {
             let err = Error()
             err = {
@@ -438,16 +440,6 @@ router.post('/:id/images', async (req, res) => {
             return res.status(404).json(err)
         }
 
-        const existingImage = await SpotImage.findOne({
-            where: {
-                spotId: spot.id,
-                preview: true
-            }
-        })
-        // console.log(existingImage.preview)
-        if (existingImage) {
-            throw new Error('Spot already has a preview image')
-        }
         if (spot.ownerId !== req.user.id) {
             let err = Error()
             err = {
@@ -456,15 +448,59 @@ router.post('/:id/images', async (req, res) => {
             return res.status(403).json(err)
         }
 
-
-        const createImg = await SpotImage.create({ spotId: spot.id, url, preview })
-        const { id: imageId } = createImg
-
-        return res.json({
-            id: imageId,
-            url: url,
-            preview: preview
+        const existingImages = await SpotImage.findAll({
+            where: {
+                spotId: spot.id
+            }
         })
+
+        if(preview === false){
+            const createImg = await SpotImage.create({spotId: spot.id, url, preview})
+            const { id: imageId } = createImg
+
+            return res.json({
+                id: imageId,
+                url: url,
+                preview: preview
+            })
+        }
+        else {
+            const previewImage = existingImages.find(img => img.preview === true)
+            if(previewImage){
+                throw new Error('Spot already has preview image')
+            }
+            else {
+                const createImg = await SpotImage.create({spotId: spot.id, url, preview})
+                const { id: imageId } = createImg
+
+                return res.json({
+                    id: imageId,
+                    url: url,
+                    preview: preview
+                })
+            }
+        }
+
+
+        // const existingImage = await SpotImage.findOne({
+        //     where: {
+        //         spotId: spot.id,
+        //         preview: true
+        //     }
+        // })
+        // // console.log(existingImage.preview)
+        // if (existingImage) {
+        //     throw new Error('Spot already has a preview image')
+        // }
+
+        // const createImg = await SpotImage.create({ spotId: spot.id, url, preview })
+        // const { id: imageId } = createImg
+
+        // return res.json({
+        //     id: imageId,
+        //     url: url,
+        //     preview: preview
+        // })
 
     } catch (error) {
         res.status(500).json({ error: error.message })
