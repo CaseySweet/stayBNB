@@ -8,8 +8,8 @@ const { ReviewImage } = require('../../db/models')
 const { Booking } = require('../../db/models')
 const { Op } = require('sequelize')
 
-// Get spots of currentUser
-router.get('/currentUser', requireAuth, async (req, res) => {
+//Get all spots of current user
+router.get('/spots/current', requireAuth, async (req, res) => {
     try {
         const { user } = req
 
@@ -85,15 +85,14 @@ router.get('/currentUser', requireAuth, async (req, res) => {
     }
 })
 
-//delete image for a spot
-router.delete('/:spotId/images/:imagesId', requireAuth, async (req, res) => {
+//delete a spot image
+router.delete('/spots/spot-images/:imageId', requireAuth, async (req, res) => {
     try {
-        const { spotId, imagesId } = req.params;
+        const { imageId } = req.params;
 
         const spotImage = await SpotImage.findOne({
             where: {
-                id: imagesId,
-                spotId: spotId
+                id: imageId,
             },
             include: [{
                 model: Spot,
@@ -125,18 +124,18 @@ router.delete('/:spotId/images/:imagesId', requireAuth, async (req, res) => {
     }
 })
 
-//get all bookings based on spot id
-router.get('/:id/bookings', requireAuth, async (req, res) => {
+//Get all bookings for a spot by spot id
+router.get('/spots/:spotId/bookings', requireAuth, async (req, res) => {
     try {
-        const { id } = req.params
+        const { spotId } = req.params
 
-        if (id === undefined || id === null || id === '') {
+        if (spotId === undefined || spotId === null || spotId === '') {
             throw new Error('Not a valid spot id.')
         }
 
         const spot = await Spot.findOne({
             where: {
-                id: id
+                id: spotId
             }
         });
 
@@ -191,13 +190,13 @@ router.get('/:id/bookings', requireAuth, async (req, res) => {
     }
 })
 
-// Make a booking based off spotId
-router.post('/:id/bookings', requireAuth, async (req, res) => {
+//Create a booking for a spot by spot id
+router.post('/spots/:spotId/bookings', requireAuth, async (req, res) => {
     try {
-        const { id } = req.params
+        const { spotId } = req.params
         const { startDate, endDate } = req.body
 
-        if (!id || !startDate || !endDate) {
+        if (!spotId || !startDate || !endDate) {
             throw new Error('Missing information to create a booking.')
         }
 
@@ -214,7 +213,7 @@ router.post('/:id/bookings', requireAuth, async (req, res) => {
 
         const spot = await Spot.findOne({
             where: {
-                id: id
+                id: spotId
             }
         })
         if (!spot) {
@@ -293,13 +292,13 @@ router.post('/:id/bookings', requireAuth, async (req, res) => {
     }
 })
 
-// Make review for spot off spots id
-router.post('/:id/reviews', requireAuth, async (req, res) => {
+// Make review for spot by id
+router.post('/spots/:spotId/reviews', requireAuth, async (req, res) => {
     try {
-        const { id } = req.params;
+        const { spotId } = req.params;
         const { review, stars } = req.body;
 
-        if (!id) {
+        if (!spotId) {
             throw new Error('Missing id to create a review.')
         }
 
@@ -320,7 +319,7 @@ router.post('/:id/reviews', requireAuth, async (req, res) => {
 
         const spot = await Spot.findOne({
             where: {
-                id: id
+                id: spotId
             }
         })
 
@@ -358,17 +357,17 @@ router.post('/:id/reviews', requireAuth, async (req, res) => {
 })
 
 // Get all reviews by spot id
-router.get('/:id/reviews', requireAuth, async (req, res) => {
+router.get('/spots/:spotId/reviews', requireAuth, async (req, res) => {
     try {
-        const { id } = req.params;
+        const { spotId } = req.params;
 
-        if (id === undefined || id === null || id === '') {
+        if (spotId === undefined || spotId === null || spotId === '') {
             throw new Error('Not a valid spot id.')
         }
 
         const spot = await Spot.findOne({
             where: {
-                id: id
+                id: spotId
             }
         });
 
@@ -410,23 +409,23 @@ router.get('/:id/reviews', requireAuth, async (req, res) => {
     }
 })
 
-//post image to spot
-router.post('/:id/images', requireAuth, async (req, res) => {
+//Add image to a spot by id
+router.post('/spots/:spotId/images', requireAuth, async (req, res) => {
     try {
-        const { id } = req.params;
+        const { spotId } = req.params;
         const { url, preview } = req.body
 
         if (!url || preview === undefined) {
             throw new Error('Missing information to post image.')
         }
 
-        if (id === undefined || id === null || id === '') {
+        if (spotId === undefined || spotId === null || spotId === '') {
             throw new Error('Not a valid spot id.')
         }
 
         const spot = await Spot.findOne({
             where: {
-                id: id
+                id: spotId
             }
         })
 
@@ -504,16 +503,16 @@ router.post('/:id/images', requireAuth, async (req, res) => {
     }
 })
 
-// Details of a spot by id
-router.get('/:id', async (req, res) => {
+//Get details of a spot by id
+router.get('/spots/:spotId', async (req, res) => {
     try {
-        const { id } = req.params;
-        if (id === undefined || id === null || id === '') {
+        const { spotId } = req.params;
+        if (spotId === undefined || spotId === null || spotId === '') {
             throw new Error('Not a valid spot id.')
         }
         const spot = await Spot.findOne({
             where: {
-                id: id
+                id: spotId
             },
             attributes: [
                 'id',
@@ -588,17 +587,17 @@ router.get('/:id', async (req, res) => {
 })
 
 // Edit a spot
-router.put('/:id', requireAuth, async (req, res) => {
+router.put('/spots/:spotId', requireAuth, async (req, res) => {
     try {
-        const { id } = req.params;
+        const { spotId } = req.params;
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
-        if (id === undefined || id === null || id === '') {
+        if (spotId === undefined || spotId === null || spotId === '') {
             throw new Error('Not a valid spot id.')
         }
         const spot = await Spot.findOne({
             where: {
-                id: id
+                id: spotId
             }
         })
         if (!spot) {
@@ -672,16 +671,16 @@ router.put('/:id', requireAuth, async (req, res) => {
 })
 
 // Delete a spot
-router.delete('/:id', requireAuth, async (req, res) => {
+router.delete('/spots/:spotId', requireAuth, async (req, res) => {
     try {
-        const { id } = req.params;
-        if (id === undefined || id === null || id === '') {
+        const { spotId } = req.params;
+        if (spotId === undefined || spotId === null || spotId === '') {
             throw new Error('Not a valid spot id.')
         }
 
         const spot = await Spot.findOne({
             where: {
-                id: id
+                id: spotId
             }
         })
         if (!spot) {
@@ -746,8 +745,8 @@ router.delete('/:id', requireAuth, async (req, res) => {
     }
 })
 
-// Returns all spots
-router.get('/', async (req, res) => {
+//Get all spots
+router.get('/spots/', async (req, res) => {
     try {
 
         let errors = Error()
@@ -891,8 +890,8 @@ router.get('/', async (req, res) => {
     }
 })
 
-// Post a spot
-router.post('/', requireAuth, async (req, res) => {
+//Create a spot
+router.post('/spots/', requireAuth, async (req, res) => {
     try {
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
 

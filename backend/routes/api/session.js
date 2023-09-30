@@ -8,7 +8,7 @@ const router = express.Router();
 
 //Login
 router.post(
-  '/login',
+  '/session',
   // validateLogin,
   async (req, res, next) => {
     try {
@@ -63,8 +63,9 @@ router.post(
   }
 );
 
+//Get current user
 router.get(
-  '/currentUser',
+  '/session',
   requireAuth,
   (req, res) => {
     try {
