@@ -5,9 +5,8 @@ const { requireAuth } = require('../../utils/auth');
 const { Op } = require('sequelize')
 const { SpotImage } = require('../../db/models')
 
-// Get currentUser bookings
-//CHECK URL
-router.get('/currentUser/bookings', requireAuth, async (req, res) => {
+// Get all current user bookings
+router.get('/bookings/current', requireAuth, async (req, res) => {
     try {
         const { user } = req;
 
@@ -59,19 +58,18 @@ router.get('/currentUser/bookings', requireAuth, async (req, res) => {
 })
 
 // Edit a booking by id
-router.put('/bookings/:id', requireAuth, async (req, res) => {
+router.put('/bookings/:bookingId', requireAuth, async (req, res) => {
     try {
-        const { user } = req
-        const { id } = req.params
+        const { bookingId } = req.params
         const { startDate, endDate } = req.body
 
-        if (!id || !startDate || !endDate) {
+        if (!bookingId || !startDate || !endDate) {
             throw new Error('Missing information to create a booking.')
         }
 
         const findBooking = await Booking.findOne({
             where: {
-                id: id,
+                id: bookingId,
             }
         })
 
@@ -173,17 +171,17 @@ router.put('/bookings/:id', requireAuth, async (req, res) => {
 })
 
 // Delete a booking
-router.delete('/bookings/:id', requireAuth, async (req, res) => {
+router.delete('/bookings/:bookingId', requireAuth, async (req, res) => {
     try {
-        const { id } = req.params
+        const { bookingId } = req.params
 
-        if (id === undefined || id === null || id === '') {
+        if (bookingId === undefined || bookingId === null || bookingId === '') {
             throw new Error('Not a valid booking id.')
         }
 
         const findBooking = await Booking.findOne({
             where: {
-                id: id
+                id: bookingId
             }
         })
 

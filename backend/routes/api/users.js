@@ -8,10 +8,9 @@ const validateEmail = (email) => {
   const checkingEmail = /\S+@\S+\.\S+/
   return checkingEmail.test(email)
 }
-
+//Sign Up
 router.post(
-  '/signup',
-  // validateSignup,
+  '/users',
   async (req, res) => {
     try {
       const { firstName, lastName, email, password, username } = req.body;
@@ -33,7 +32,7 @@ router.post(
       if (!password || password.length < 6) {
         errors.password = 'Password must be 6 characters or more'
       }
-      // console.log(Object.keys(errors).length)
+
       if (Object.keys(errors).length > 0) {
         return res.status(400).json({
           message: 'Bad Request',

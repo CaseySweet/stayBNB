@@ -10,7 +10,7 @@ const bookingsRouter = require('./bookings.js')
 
 router.use('/', sessionRouter);
 router.use('/', usersRouter);
-router.use('/spots', spotsRouter);
+router.use('/', spotsRouter);
 router.use('/', reviewsRouter);
 router.use('/', bookingsRouter);
 

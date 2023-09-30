@@ -6,7 +6,8 @@ const { requireAuth } = require('../../utils/auth');
 const { User } = require('../../db/models');
 const { SpotImage } = require('../../db/models')
 
-router.get('/currentUser/reviews', requireAuth, async (req, res) => {
+//Get all reviews of current user
+router.get('/reviews/current', requireAuth, async (req, res) => {
     try {
         const { user } = req;
         if (user === null) {
@@ -85,22 +86,21 @@ router.get('/currentUser/reviews', requireAuth, async (req, res) => {
     }
 })
 
-//delete a image of a review
-router.delete('/reviews/:reviewId/images/:imageId', requireAuth, async (req, res) => {
+//delete a review image
+router.delete('/reviews/review-images/:imageId', requireAuth, async (req, res) => {
     try {
-        const { reviewId, imageId } = req.params
+        const { imageId } = req.params
 
-        const review = await Review.findOne({
-            where: {
-                id: reviewId
-            },
-        })
         const img = await ReviewImage.findOne({
             where: {
                 id: imageId
-            }
+            },
+            include: [{
+                model: Review,
+                attributes: ['userId']
+            }]
         })
-        if (!review || !img) {
+        if (!img) {
             let err = Error()
             err = {
                 message: 'Review Image couldn\'t be found'
@@ -108,7 +108,7 @@ router.delete('/reviews/:reviewId/images/:imageId', requireAuth, async (req, res
             return res.status(404).json(err)
         }
 
-        if (review.userId !== req.user.id) {
+        if (img.Review.userId !== req.user.id) {
             let err = Error()
             err = {
                 message: 'Forbidden'
@@ -122,22 +122,22 @@ router.delete('/reviews/:reviewId/images/:imageId', requireAuth, async (req, res
     }
 })
 
-//post image to review
-router.post('/reviews/:id/images', requireAuth, async (req, res) => {
+//Add an image to a review by review id
+router.post('/reviews/:reviewId/images', requireAuth, async (req, res) => {
     try {
-        const { id } = req.params;
+        const { reviewId } = req.params;
         const { url } = req.body
 
         if (!url) {
             throw new Error('Missing information to post image.')
         }
 
-        if (id === undefined || id === null || id === '') {
+        if (reviewId === undefined || reviewId === null || reviewId === '') {
             throw new Error('Not a valid review id.')
         }
         const reviews = await Review.findOne({
             where: {
-                id: id
+                id: reviewId
             }
         })
 
@@ -185,18 +185,18 @@ router.post('/reviews/:id/images', requireAuth, async (req, res) => {
 })
 
 //Edit a review
-router.put('/reviews/:id', requireAuth, async (req, res) => {
+router.put('/reviews/:reviewId', requireAuth, async (req, res) => {
     try {
-        const { id } = req.params
+        const { reviewId } = req.params
         const { review, stars } = req.body;
 
-        if (!id) {
+        if (!reviewId) {
             throw new Error('Missing id to create a review.')
         }
 
         const findReview = await Review.findOne({
             where: {
-                id: id
+                id: reviewId
             },
             attributes: [
                 'id',
@@ -253,17 +253,17 @@ router.put('/reviews/:id', requireAuth, async (req, res) => {
 })
 
 //Delete a review
-router.delete('/reviews/:id', requireAuth, async (req, res) => {
+router.delete('/reviews/:reviewId', requireAuth, async (req, res) => {
     try {
-        const { id } = req.params;
+        const { reviewId } = req.params;
 
-        if (id === undefined || id === null || id === '') {
+        if (reviewId === undefined || reviewId === null || reviewId === '') {
             throw new Error('Not a valid review id.')
         }
 
         const review = await Review.findOne({
             where: {
-                id: id
+                id: reviewId
             }
         })
 
