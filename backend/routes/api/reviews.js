@@ -87,7 +87,7 @@ router.get('/reviews/current', requireAuth, async (req, res) => {
 })
 
 //delete a review image
-router.delete('/reviews/review-images/:imageId', requireAuth, async (req, res) => {
+router.delete('/review-images/:imageId', requireAuth, async (req, res) => {
     try {
         const { imageId } = req.params
 
