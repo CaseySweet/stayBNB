@@ -86,7 +86,7 @@ router.get('/spots/current', requireAuth, async (req, res) => {
 })
 
 //delete a spot image
-router.delete('/spots/spot-images/:imageId', requireAuth, async (req, res) => {
+router.delete('/spot-images/:imageId', requireAuth, async (req, res) => {
     try {
         const { imageId } = req.params;
 
