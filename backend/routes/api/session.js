@@ -66,7 +66,6 @@ router.post(
 //Get current user
 router.get(
   '/session',
-  requireAuth,
   (req, res) => {
     try {
       const { user } = req;

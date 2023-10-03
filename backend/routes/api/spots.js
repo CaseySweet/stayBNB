@@ -86,7 +86,7 @@ router.get('/spots/current', requireAuth, async (req, res) => {
 })
 
 //delete a spot image
-router.delete('/spots/spot-images/:imageId', requireAuth, async (req, res) => {
+router.delete('/spot-images/:imageId', requireAuth, async (req, res) => {
     try {
         const { imageId } = req.params;
 
@@ -350,14 +350,14 @@ router.post('/spots/:spotId/reviews', requireAuth, async (req, res) => {
         }
 
         const newReview = await Review.create({ spotId: spot.id, userId: req.user.id, review, stars })
-        res.json(newReview)
+        res.status(201).json(newReview)
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
 })
 
 // Get all reviews by spot id
-router.get('/spots/:spotId/reviews', requireAuth, async (req, res) => {
+router.get('/spots/:spotId/reviews', async (req, res) => {
     try {
         const { spotId } = req.params;
 
