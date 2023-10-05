@@ -27,6 +27,15 @@ router.get('/reviews/current', requireAuth, async (req, res) => {
                 'createdAt',
                 'updatedAt'
             ],
+            include: [
+                {
+                    model: ReviewImage,
+                    attributes: [
+                        'id',
+                        'url'
+                    ]
+                }
+            ]
         })
 
         let rslt = []
@@ -53,12 +62,12 @@ router.get('/reviews/current', requireAuth, async (req, res) => {
 
             })
 
-            const reviewImages = await ReviewImage.findAll({
-                where: {
-                    id: review.id
-                },
-                attributes: ['id', 'url']
-            })
+            // const reviewImages = await ReviewImage.findAll({
+            //     where: {
+            //         id: review.id
+            //     },
+            //     attributes: ['id', 'url']
+            // })
 
             review.User = user
             review.Spot = {
@@ -74,7 +83,7 @@ router.get('/reviews/current', requireAuth, async (req, res) => {
                 price: spot.price,
                 previewImage: spotImages.length > 0 ? spotImages[0].url : null
             }
-            review.ReviewImages = reviewImages
+            // review.ReviewImages = reviewImages
             rslt.push(review)
         }
 

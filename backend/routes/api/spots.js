@@ -231,6 +231,17 @@ router.post('/spots/:spotId/bookings', requireAuth, async (req, res) => {
             }
             return res.status(403).json(err)
         }
+        if(startDate === endDate){
+            let err = Error()
+            err = {
+                message: 'Sorry, this spot is already booked for the specified dates',
+                errors: {
+                    startDate: 'Start date conflicts with an existing booking',
+                    endDate: 'End date conflicts with an existing booking'
+                }
+            }
+            return res.status(403).json(err)
+        }
 
         const existingBookings = await Booking.findAll({
             where: {
