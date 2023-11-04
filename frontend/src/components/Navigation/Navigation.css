@@ -1,0 +1,15 @@
+.top-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.home-link {
+    font: 24pt bold;
+    color: #FF5A5F;
+    text-decoration: none;
+}
+
+.profile-dropdown {
+    color: black
+}
