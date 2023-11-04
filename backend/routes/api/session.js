@@ -93,7 +93,7 @@ router.get(
 );
 
 router.delete(
-  '/',
+  '/session',
   (_req, res) => {
     res.clearCookie('token');
     return res.json({ message: 'success' });
