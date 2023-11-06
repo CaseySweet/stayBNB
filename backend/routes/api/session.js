@@ -55,7 +55,7 @@ router.post(
       await setTokenCookie(res, safeUser);
 
       return res.json({
-        User: safeUser
+        user: safeUser
       });
     } catch (error) {
       return res.status(500).json({ error: error.message });
