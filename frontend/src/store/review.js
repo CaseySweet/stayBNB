@@ -2,19 +2,19 @@ import { csrfFetch } from "./csrf";
 
 const GET_REVIEWS = 'reviews/get'
 
-const getAReview = (spot) => {
+const getAllReview = (spot) => {
     return {
         type: GET_REVIEWS,
         payload: spot
     }
 }
 
-export const getReview = (id) => async dispatch => {
-    const response = await csrfFetch(`/api/spots/${id}/reviews`)
+export const getReviews = (spotId) => async (dispatch) => {
+    const response = await csrfFetch(`/api/spots/${spotId}/reviews`)
 
     if(response.ok){
         const reviews = await response.json()
-        dispatch(getAReview(reviews))
+        dispatch(getAllReview(reviews))
         return reviews
     }
 }
@@ -26,8 +26,8 @@ const reviewReducer = (state = initialState, action) => {
     switch(action.type){
         case GET_REVIEWS:
             newState = Object.assign({}, state)
-            const reviewArr = action.payload.reviews
-            reviewArr.map((reviewObj) => newState[reviewObj] = reviewObj)
+            const reviewArr = action.payload.Reviews
+            reviewArr.map((reviewObj) => newState[reviewObj.id] = reviewObj)
             return newState
         default:
             return state
