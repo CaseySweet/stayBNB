@@ -1,6 +1,7 @@
 import { csrfFetch } from "./csrf";
 
 const GET_SPOTS = 'spots/get'
+const GET_SPOT = 'spots/get'
 
 const getAllSpots = (spots) => {
     return {
@@ -9,13 +10,30 @@ const getAllSpots = (spots) => {
     }
 }
 
+const getASpot = (spot) => {
+    return {
+        type: GET_SPOT,
+        payload: spot
+    }
+}
+
 export const getSpots = () => async (dispatch) => {
     const response = await csrfFetch('/api/spots')
 
     if (response.ok) {
-        const data = await response.json()
-        dispatch(getAllSpots(data))
-        return data
+        const spots = await response.json()
+        dispatch(getAllSpots(spots))
+        return spots
+    }
+}
+
+export const getSpot = (spotId) => async (dispatch) => {
+    const response = await csrfFetch(`/api/spots/${spotId}`)
+
+    if(response.ok){
+        const spot = await response.json()
+        dispatch(getASpot(spot))
+        return spot
     }
 }
 
@@ -26,9 +44,11 @@ const spotReducer = (state = initialState, action) => {
     switch (action.type) {
         case GET_SPOTS:
             newState = Object.assign({}, state)
-            const getArr = action.payload.Spots
-            getArr.map((spotObj) => newState[spotObj.id] = spotObj)
+            const spotArr = action.payload.Spots
+            spotArr.map((spotObj) => newState[spotObj.id] = spotObj)
             return newState
+        // case GET_SPOT:
+        //     return {...state, [action.spot.id]: action.report}
         default:
             return state
     }
