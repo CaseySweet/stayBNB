@@ -7,18 +7,17 @@ import './Navigation.css';
 function Navigation({ isLoaded }) {
     const sessionUser = useSelector(state => state.session.user);
     return (
-        <>
-            <div>
+            <div className='top-container'>
                 <div>
+                    <img src='./favicon.png' alt='Favicon' className='logo'/>
                     <NavLink exact to="/" className='home-link'>staybnb</NavLink>
                 </div>
                 {isLoaded && (
-                    <div>
+                    <div >
                         <ProfileButton user={sessionUser} />
                     </div>
                 )}
             </div>
-        </>
     );
 }
 
