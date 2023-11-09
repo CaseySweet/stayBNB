@@ -32,6 +32,7 @@ export const getSpot = (spotId) => async (dispatch) => {
 
     if(response.ok){
         const spot = await response.json()
+        console.log(spot)
         dispatch(getASpot(spot))
         return spot
     }
@@ -47,8 +48,8 @@ const spotReducer = (state = initialState, action) => {
             const spotArr = action.payload.Spots
             spotArr.map((spotObj) => newState[spotObj.id] = spotObj)
             return newState
-        // case GET_SPOT:
-        //     return {...state, [action.spot.id]: action.report}
+        case GET_SPOT:
+            return {...state, [action.spot.id]: action.spot}
         default:
             return state
     }
