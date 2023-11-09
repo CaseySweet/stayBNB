@@ -1,23 +1,22 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux'
-import * as reveiwActions from '../../store/review'
-import { useParams, NavLink } from 'react-router-dom'
+import * as reviewActions from '../../store/review'
+import { useParams } from 'react-router-dom'
 
 const AReveiw = () => {
     const dispatch = useDispatch()
     const { spotId } = useParams()
-    const reveiws = useSelector(state => state.reveiws)
+    // const reveiws = useSelector(state => state.reveiws)
 
-    const spotReviews = Object.values(reveiws).filter((review) => review.spotId === spotId)
+    // const spotReviews = Object.values(reveiws).filter((review) => review.spotId === spotId)
 
     useEffect(() => {
-        dispatch(reveiwActions.getReviews(spotId))
+        dispatch(reviewActions.getReviews(spotId))
     },[dispatch])
 
     return (
         <div>
             <div>Hello</div>
-
         </div>
     )
 }
