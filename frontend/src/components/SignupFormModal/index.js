@@ -41,8 +41,6 @@ function SignupFormModal() {
         });
     };
 
-    console.log(errors)
-
     return (
         <>
             <h1>Sign Up</h1>
