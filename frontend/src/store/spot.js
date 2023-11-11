@@ -53,26 +53,24 @@ export const getSpot = (spotId) => async (dispatch) => {
     }
 }
 
-export const postSpot = (spotInfo) => async dispatch => {
-    const newSpot = await csrfFetch('/api/spots/', {
+export const postSpot = (spotInfo) => async (dispatch) => {
+    console.log('coming from THUNK', JSON.stringify(spotInfo))
+    const newSpot = await csrfFetch('/api/spots', {
         method: 'POST',
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify(spotInfo)
     })
-    console.log(newSpot, 'NEWSPOT')
-    console.log(spotInfo, 'SPOTINFO')
 
     if (newSpot.ok) {
         const spot = await newSpot.json()
         dispatch(postASpot(spot))
         return spot
     }
-    if(!newSpot.ok) return newSpot
 }
 
-export const postImage = (spotId, image) => async dispatch => {
+export const postImage = (spotId, image) => async (dispatch) => {
     const response = await csrfFetch(`/api/spots/${spotId}/images`, {
         method: 'POST',
         headers: {
@@ -104,17 +102,15 @@ const spotReducer = (state = initialState, action) => {
             newState = Object.assign({}, state)
             newState.spot = action.payload;
             return newState;
-            case POST_SPOT:
-                newState = Object.assign({}, state)
-                newState.spot = action.payload
+        case POST_SPOT:
+            newState = Object.assign({}, state)
+            newState.spot = action.payload
             return newState
         case POST_IMAGE:
-            newState = Object.assign({}, state);
-            const updatedSpot = action.payload;
-            console.log(updatedSpot)
-            newState[updatedSpot.id] = updatedSpot;
-            console.log(newState)
-            return newState;
+            newState = Object.assign({}, state)
+            newState.spot = action.payload
+
+            return newState
         default:
             return state
     }

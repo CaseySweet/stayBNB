@@ -6,7 +6,6 @@ import './NewSpotForm.css'
 
 const NewSpotForm = () => {
     const dispatch = useDispatch()
-    // const { spotId } = useParams()
     const history = useHistory()
     const [country, setCountry] = useState('')
     const [address, setAddress] = useState('')
@@ -16,7 +15,7 @@ const NewSpotForm = () => {
     const [lng, setLng] = useState('')
     const [description, setDescription] = useState('')
     const [name, setName] = useState('')
-    const [price, setPrice] = useState()
+    const [price, setPrice] = useState('')
     const [preview, setPreview] = useState('')
     const [image1, setImage1] = useState('')
     const [image2, setImage2] = useState('')
@@ -57,7 +56,7 @@ const NewSpotForm = () => {
 
         setSubmit(true)
 
-        const spotInfo = { address, city, state, lat, lng, description, name, price }
+        const spotInfo = { country, address, city, state, lat: Number(lat), lng: Number(lng), description, name, price: +price }
 
         const previewImgInfo = {
             url: preview,
@@ -86,7 +85,6 @@ const NewSpotForm = () => {
 
         if (!Object.values(errors).length) {
             const createdSpot = await dispatch(spotActions.postSpot(spotInfo))
-            console.log(createdSpot)
                 .catch(async (res) => {
                     const data = await res.json()
                     if (data && data.errors) {
@@ -117,12 +115,13 @@ const NewSpotForm = () => {
             setCountry('')
             setName('')
             setDescription('')
-            setPrice()
+            setPrice('')
             setPreview('')
             setImage1('')
             setImage2('')
             setImage3('')
             setImage4('')
+
 
             history.push(`/spots/${createdSpot.id}`)
         }
