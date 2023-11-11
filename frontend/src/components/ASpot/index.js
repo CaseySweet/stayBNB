@@ -51,11 +51,15 @@ const ASpot = () => {
                 </div>
                 <div>
                     <div>${spot.price} night</div>
-                    <div>★ {avgStars} • # {reviews.length} reviews</div>
+                    {!reviews || reviews.length === 0 ? (
+                        <div><strong>New</strong></div>
+                    ) : (
+                        <div>★ {avgStars} • # {reviews.length === 1 ? "1 review" : `${reviews.length} reviews`}</div>
+                    )}
                     <button onClick={() => alert('Feature coming soon!!')}>Reserve</button>
                 </div>
                 <div>
-                    <AReveiw/>
+                    <AReveiw />
                 </div>
             </div>
         )
