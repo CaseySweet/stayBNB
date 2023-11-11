@@ -14,7 +14,7 @@ export const getReviews = (spotId) => async (dispatch) => {
 
     if(response.ok){
         const reviews = await response.json()
-        dispatch(getAllReview(reviews))
+        dispatch(getAllReview(reviews.Reviews))
         return reviews
     }
 }
@@ -25,10 +25,9 @@ const reviewReducer = (state = initialState, action) => {
     let newState
     switch(action.type){
         case GET_REVIEWS:
-            newState = Object.assign({}, state)
-            const reviewArr = action.payload.Reviews
-            reviewArr.map((reviewObj) => newState[reviewObj.id] = reviewObj)
-            return newState
+            newState = Object.assign({}, state);
+            newState.review = action.payload;
+            return newState;
         default:
             return state
     }

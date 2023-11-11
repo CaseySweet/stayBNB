@@ -1,24 +1,49 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux'
 import * as reviewActions from '../../store/review'
 import { useParams } from 'react-router-dom'
 
-const AReveiw = () => {
+const AReview = () => {
     const dispatch = useDispatch()
     const { spotId } = useParams()
-    // const reveiws = useSelector(state => state.reveiws)
+    const reviews = useSelector(state => state.reviews.review)
+    const [avgStars, setAvgStars] = useState();
 
-    // const spotReviews = Object.values(reveiws).filter((review) => review.spotId === spotId)
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+    }
 
     useEffect(() => {
         dispatch(reviewActions.getReviews(spotId))
-    },[dispatch])
+    }, [dispatch, spotId])
 
-    return (
-        <div>
-            <div>Hello</div>
-        </div>
-    )
+    useEffect(() => {
+        if (reviews) {
+            const totalStars = reviews.reduce((sum, review) => sum + review.stars, 0);
+            const average = totalStars / reviews.length;
+            setAvgStars(average);
+        }
+    }, [reviews]);
+
+    if (!reviews) {
+        return (
+            <div>LOADING</div>
+        )
+    } else {
+        return (
+            <div>
+                <div>★ {avgStars} • # {reviews.length} reviews</div>
+                {reviews.map((review, index) => (
+                    <ul key={index}>
+                        <div>{review.User.firstName}</div>
+                        <div>{formatDate(review.createdAt)}</div>
+                        <div>{review.review}</div>
+                    </ul>
+                ))}
+            </div>
+        )
+    }
 }
 
-export default AReveiw
+export default AReview
