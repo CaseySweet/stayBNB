@@ -4,7 +4,7 @@ import * as sessionActions from '../../store/session';
 import OpenModalButton from '../OpenModalButton';
 import LoginFormModal from '../LoginFormModal';
 import SignupFormModal from '../SignupFormModal';
-import { useHistory } from 'react-router-dom'
+import { useHistory, NavLink } from 'react-router-dom'
 import './Navigation.css';
 
 function ProfileButton({ user }) {
@@ -54,12 +54,14 @@ function ProfileButton({ user }) {
                 ) :
                     (user ? (
                         <>
-                            <li>{user.username}</li>
-                            <li>Hello, {user.firstName}</li>
-                            <li>{user.email}</li>
-                            <li>
+                            <div>Hello, {user.firstName}</div>
+                            <div>{user.email}</div>
+                            <NavLink to="/spots/current">
+                                Manage Spots
+                            </NavLink>
+                            <div>
                                 <button onClick={logout}>Log Out</button>
-                            </li>
+                            </div>
                         </>
                     ) : (
                         <div className="login-signup-container">
