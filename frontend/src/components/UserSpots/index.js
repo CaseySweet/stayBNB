@@ -2,8 +2,6 @@ import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import * as spotActions from '../../store/spot'
 import { NavLink } from 'react-router-dom'
-import AllSpots from "../AllSpots"
-
 
 const UserSpots = () => {
     const dispatch = useDispatch()
@@ -34,20 +32,25 @@ const UserSpots = () => {
                 </NavLink>
                 <div>
                     <ul className="spot-list">
-                        {ownedSpots.map(spot => (
-                            <NavLink className="each-spot" to={`/spots/${spot.id}`} key={spot.id}>
-                                <img src={spot.previewImage} alt={spot.name} title={spot.name}></img>
-                                <div className="spot-info-container">
-                                    <div>{spot.city}, {spot.state}</div>
-                                    {spot.avgRating ? (
-                                        <div className="review-info">★<strong>{spot.avgRating}</strong></div>
-                                    ) : (
-                                        <div className="review-info"><strong>New</strong></div>
-                                    )}
+                        <div>
+                            {ownedSpots.map(spot => (
+                                <div key={spot.id}>
+                                <NavLink className="each-spot" to={`/spots/${spot.id}`}>
+                                    <img src={spot.previewImage} alt={spot.name} title={spot.name}></img>
+                                    <div className="spot-info-container">
+                                        <div>{spot.city}, {spot.state}</div>
+                                        {spot.avgRating ? (
+                                            <div className="review-info">★<strong>{spot.avgRating}</strong></div>
+                                        ) : (
+                                            <div className="review-info"><strong>New</strong></div>
+                                        )}
+                                    </div>
+                                    <div><strong>${spot.price}</strong> night</div>
+                                </NavLink>
+                                <NavLink to={`/spots/${spot.id}/edit`}><button>Update</button></NavLink>
                                 </div>
-                                <div><strong>${spot.price}</strong> night</div>
-                            </NavLink>
-                        ))}
+                            ))}
+                        </div>
                     </ul>
                 </div>
             </div>

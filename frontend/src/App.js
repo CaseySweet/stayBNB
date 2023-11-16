@@ -7,6 +7,7 @@ import AllSpots from "./components/AllSpots";
 import ASpot from "./components/ASpot";
 import NewSpotForm from './components/NewSpotForm'
 import UserSpots from "./components/UserSpots";
+import UpdateSpotForm from "./components/UpdateSpotForm";
 
 function App() {
   const dispatch = useDispatch();
@@ -24,6 +25,7 @@ function App() {
           <Route path="/spots/new" component={NewSpotForm} />
           <Route path="/spots/current" component={UserSpots} />
           <Route exact path="/spots/:spotId" component={ASpot} />
+          <Route path="/spots/:spotId/edit" component={UpdateSpotForm} />
         </Switch>
       }
     </>
