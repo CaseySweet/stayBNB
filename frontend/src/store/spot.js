@@ -6,6 +6,7 @@ const POST_SPOT = 'spot/post'
 const POST_IMAGE = 'spot/post/image'
 const OWNED_SPOTS = "spot/get/owned"
 const EDIT_SPOT = 'spot/edit'
+const DELETE_SPOT = 'spot/delete'
 
 const getAllSpots = (spots) => {
     return {
@@ -46,6 +47,13 @@ const editASpot = (spot) => {
     return {
         type: EDIT_SPOT,
         payload: spot
+    }
+}
+
+const deleteASpot = (spot) => {
+    return {
+        type: DELETE_SPOT,
+        payload: (spot)
     }
 }
 
@@ -107,8 +115,8 @@ export const postImage = (spotId, image) => async (dispatch) => {
 export const getOwnedSpots = (ownerId) => async (dispatch) => {
     const response = await csrfFetch('/api/spots/user')
 
-    if(response.ok){
-        const ownedSpots = response.json()
+    if (response.ok) {
+        const ownedSpots = await response.json()
         dispatch(getAllOwnedSpots(ownedSpots))
         return ownedSpots
     }
@@ -122,10 +130,22 @@ export const editSpot = (spotInfo, spotId) => async (dispatch) => {
         },
         body: JSON.stringify(spotInfo)
     })
-    if(response.ok){
-        const updatedSpot = response.json()
+    if (response.ok) {
+        const updatedSpot = await response.json()
         dispatch(editASpot(updatedSpot))
         return updatedSpot
+    }
+}
+
+export const deleteSpot = (spotId) => async (dispatch) => {
+    const response = await csrfFetch(`/api/spots/${spotId}`, {
+        method: 'DELETE'
+    })
+
+    if (response.ok) {
+        const deletedSpot = await response.json()
+        dispatch(deleteASpot(deletedSpot))
+        return deletedSpot
     }
 }
 
@@ -152,13 +172,17 @@ const spotReducer = (state = initialState, action) => {
             newState.spot = action.payload
             return newState
         case OWNED_SPOTS:
-                newState = Object.assign({}, state)
-                newState.spot = action.payload;
-                return newState;
+            newState = Object.assign({}, state)
+            newState.spot = action.payload;
+            return newState;
         case EDIT_SPOT:
-                newState = Object.assign({}, state)
-                newState.spot = action.payload;
-                return newState;
+            newState = Object.assign({}, state)
+            newState.spot = action.payload;
+            return newState;
+        case DELETE_SPOT:
+            newState = Object.assign({}, state)
+            delete newState[action.payload]
+            return newState
         default:
             return state
     }

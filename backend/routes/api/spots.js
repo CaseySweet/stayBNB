@@ -231,7 +231,7 @@ router.post('/spots/:spotId/bookings', requireAuth, async (req, res) => {
             }
             return res.status(403).json(err)
         }
-        if(startDate === endDate){
+        if (startDate === endDate) {
             let err = Error()
             err = {
                 message: 'Sorry, this spot is already booked for the specified dates',
@@ -462,8 +462,8 @@ router.post('/spots/:spotId/images', requireAuth, async (req, res) => {
             }
         })
 
-        if(preview === false){
-            const createImg = await SpotImage.create({spotId: spot.id, url, preview})
+        if (preview === false) {
+            const createImg = await SpotImage.create({ spotId: spot.id, url, preview })
             const { id: imageId } = createImg
 
             return res.json({
@@ -473,20 +473,15 @@ router.post('/spots/:spotId/images', requireAuth, async (req, res) => {
             })
         }
         else {
-            const previewImage = existingImages.find(img => img.preview === true)
-            if(previewImage){
-                throw new Error('Spot already has preview image')
-            }
-            else {
-                const createImg = await SpotImage.create({spotId: spot.id, url, preview})
-                const { id: imageId } = createImg
+            const createImg = await SpotImage.create({ spotId: spot.id, url, preview })
+            const { id: imageId } = createImg
 
-                return res.json({
-                    id: imageId,
-                    url: url,
-                    preview: preview
-                })
-            }
+            return res.json({
+                id: imageId,
+                url: url,
+                preview: preview
+            })
+
         }
 
         // const existingImage = await SpotImage.findOne({
