@@ -5,6 +5,7 @@ const GET_SPOT = 'spot/get'
 const POST_SPOT = 'spot/post'
 const POST_IMAGE = 'spot/post/image'
 const OWNED_SPOTS = "spot/get/owned"
+const EDIT_SPOT = 'spot/edit'
 
 const getAllSpots = (spots) => {
     return {
@@ -38,6 +39,13 @@ const getAllOwnedSpots = (spots) => {
     return {
         type: OWNED_SPOTS,
         payload: spots
+    }
+}
+
+const editASpot = (spot) => {
+    return {
+        type: EDIT_SPOT,
+        payload: spot
     }
 }
 
@@ -96,13 +104,28 @@ export const postImage = (spotId, image) => async (dispatch) => {
     }
 }
 
-export const getOwnedSpots = (ownerId) => async dispatch => {
+export const getOwnedSpots = (ownerId) => async (dispatch) => {
     const response = await csrfFetch('/api/spots/user')
 
     if(response.ok){
         const ownedSpots = response.json()
         dispatch(getAllOwnedSpots(ownedSpots))
         return ownedSpots
+    }
+}
+
+export const editSpot = (spotInfo, spotId) => async (dispatch) => {
+    const response = await csrfFetch(`/api/spots/${spotId}`, {
+        method: 'PUT',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(spotInfo)
+    })
+    if(response.ok){
+        const updatedSpot = response.json()
+        dispatch(editASpot(updatedSpot))
+        return updatedSpot
     }
 }
 
@@ -129,6 +152,10 @@ const spotReducer = (state = initialState, action) => {
             newState.spot = action.payload
             return newState
         case OWNED_SPOTS:
+                newState = Object.assign({}, state)
+                newState.spot = action.payload;
+                return newState;
+        case EDIT_SPOT:
                 newState = Object.assign({}, state)
                 newState.spot = action.payload;
                 return newState;
