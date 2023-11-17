@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import * as reviewActions from '../../store/review'
 import { useParams } from 'react-router-dom'
 import OpenModalButton from '../OpenModalButton';
-import PostReview from "../../components/PostReview";
+import PostReview from "../PostReview";
+import DeleteAReview from '../DeleteReview'
 
 const AReview = () => {
     const dispatch = useDispatch()
@@ -92,6 +93,12 @@ const AReview = () => {
                             <div>{review.User.firstName}</div>
                             <div>{formatDate(review.createdAt)}</div>
                             <div>{review.review}</div>
+                            {userSignedIn === review.userId && (
+                                <OpenModalButton
+                                    buttonText={'Delete'}
+                                    modalComponent={<DeleteAReview reviewId={review.id} />}
+                                />
+                            )}
                         </ul>
                     ))}
                 </div>

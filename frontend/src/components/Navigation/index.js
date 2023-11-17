@@ -3,13 +3,14 @@ import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ProfileButton from './ProfileButton';
 import './Navigation.css';
+import favicon from  './favicon.png'
 
 function Navigation({ isLoaded }) {
     const sessionUser = useSelector(state => state.session.user);
     return (
         <div className='top-container'>
             <div>
-                <img src='./favicon.png' alt='Favicon' className='logo' />
+                <img src={favicon} alt='Favicon' className='logo' />
                 <NavLink exact to="/" className='home-link'>staybnb</NavLink>
             </div>
             {isLoaded && (
