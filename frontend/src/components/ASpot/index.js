@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom'
 import AReveiw from "../AReview";
 import * as reviewActions from '../../store/review'
 
-
 const ASpot = () => {
     const dispatch = useDispatch()
     const { spotId } = useParams()
@@ -26,9 +25,11 @@ const ASpot = () => {
         if (reviews) {
             const totalStars = reviews.reduce((sum, review) => sum + review.stars, 0);
             const average = totalStars / reviews.length;
-            setAvgStars(average);
+            setAvgStars(average.toFixed(1));
         }
     }, [reviews]);
+
+    console.log(spot.ownerId)
 
     if (!spot) {
         return (
@@ -46,20 +47,16 @@ const ASpot = () => {
                     <img src={spot.previewImage} alt={spot.name}></img>
                 </div>
                 <div>
-                    <p>Host by {spots[spotId].ownerId}</p>
+                    <p>Host by {spot.ownerId}</p>
                     <p>{spot.description}</p>
                 </div>
                 <div>
                     <div>${spot.price} night</div>
-                    {!reviews || reviews.length === 0 ? (
-                        <div><strong>New</strong></div>
-                    ) : (
-                        <div>★ {avgStars} • # {reviews.length === 1 ? "1 review" : `${reviews.length} reviews`}</div>
-                    )}
+                    <div>★ {avgStars} • # {reviews.length} reviews</div>
                     <button onClick={() => alert('Feature coming soon!!')}>Reserve</button>
                 </div>
                 <div>
-                    <AReveiw />
+                    <AReveiw/>
                 </div>
             </div>
         )

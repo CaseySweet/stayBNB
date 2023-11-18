@@ -24,7 +24,7 @@ const AllSpots = () => {
                         <div className="spot-info-container">
                             <div>{spot.city}, {spot.state}</div>
                             {spot.avgRating ? (
-                                <div className="review-info">★<strong>{spot.avgRating}</strong></div>
+                                <div className="review-info">★<strong>{spot.avgRating.toFixed(1)}</strong></div>
                             ) : (
                                 <div className="review-info"><strong>New</strong></div>
                             )}
