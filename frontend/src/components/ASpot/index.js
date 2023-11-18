@@ -9,12 +9,14 @@ const ASpot = () => {
     const dispatch = useDispatch()
     const { spotId } = useParams()
     const [avgStars, setAvgStars] = useState();
+    const [isLoaded, setIsLoaded] = useState(false)
     const spots = useSelector(state => state.spots)
     const reviews = useSelector(state => state.reviews.review)
     const spot = spots[spotId]
 
     useEffect(() => {
-        dispatch(spotActions.getSpots())
+        dispatch(spotActions.getSpot(spotId))
+        .then(() => setIsLoaded(true))
     }, [dispatch])
 
     useEffect(() => {
@@ -29,9 +31,9 @@ const ASpot = () => {
         }
     }, [reviews]);
 
-    console.log(spot.ownerId)
+    // console.log(spot.ownerId)
 
-    if (!spot) {
+    if (!isLoaded) {
         return (
             <div>LOADING</div>
         )
@@ -44,10 +46,10 @@ const ASpot = () => {
                     <h2>{spot.city}, {spot.state}, {spot.country}</h2>
                 </div>
                 <div>
-                    <img src={spot.previewImage} alt={spot.name}></img>
+                    <img src={spot.SpotImages.find(image => image.preview === true).url} alt={spot.name}></img>
                 </div>
                 <div>
-                    <p>Host by {spot.ownerId}</p>
+                    <p>Host by {spot.Owner.firstName} {spot.Owner.lastName}</p>
                     <p>{spot.description}</p>
                 </div>
                 <div>

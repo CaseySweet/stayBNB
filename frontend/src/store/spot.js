@@ -161,7 +161,7 @@ const spotReducer = (state = initialState, action) => {
             return newState
         case GET_SPOT:
             newState = Object.assign({}, state)
-            newState.spot = action.payload;
+            newState[action.payload.id] = action.payload;
             return newState;
         case POST_SPOT:
             newState = Object.assign({}, state)
