@@ -17,21 +17,21 @@ const ASpot = () => {
     useEffect(() => {
         dispatch(spotActions.getSpot(spotId))
         .then(() => setIsLoaded(true))
-    }, [dispatch])
+    }, [dispatch, spotId])
 
     useEffect(() => {
         dispatch(reviewActions.getReviews(spotId))
     }, [dispatch, spotId])
 
     useEffect(() => {
-        if (reviews) {
+        if (reviews && reviews.length > 0) {
             const totalStars = reviews.reduce((sum, review) => sum + review.stars, 0);
             const average = totalStars / reviews.length;
             setAvgStars(average.toFixed(1));
+        } else {
+            setAvgStars('New')
         }
     }, [reviews]);
-
-    // console.log(spot.ownerId)
 
     if (!isLoaded) {
         return (
@@ -54,7 +54,8 @@ const ASpot = () => {
                 </div>
                 <div>
                     <div>${spot.price} night</div>
-                    <div>★ {avgStars} • # {reviews.length} reviews</div>
+                    {avgStars !== 'New' && <div>★ {avgStars} • #{reviews.length} reviews</div>}
+                    {avgStars === 'New' && <div>{avgStars}</div>}
                     <button onClick={() => alert('Feature coming soon!!')}>Reserve</button>
                 </div>
                 <div>

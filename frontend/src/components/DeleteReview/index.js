@@ -1,18 +1,19 @@
 import { useDispatch } from "react-redux"
+import React from "react";
 import { useModal } from "../../context/Modal"
 import * as reviewActions from '../../store/review'
 
-const DeleteAReview = ({reviewId}) => {
+const DeleteAReview = ({ reviewId }) => {
     const dispatch = useDispatch()
     const { closeModal } = useModal()
 
-    console.log(reviewId, 'Review id')
 
     const handleDelete = (e) => {
         e.preventDefault()
         dispatch(reviewActions.deleteReview(reviewId))
         closeModal()
     }
+
     return (
         <div>
             <h1>Confirm Delete</h1>

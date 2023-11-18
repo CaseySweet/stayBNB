@@ -11,18 +11,23 @@ const AReview = () => {
     const { spotId } = useParams()
     const reviews = useSelector(state => state.reviews.review) || []
     const [avgStars, setAvgStars] = useState()
+    const [isLoaded, setIsLoaded] = useState(false)
     const sessionUser = useSelector(state => state.session.user)
-    // const spotsObj = useSelector(state => state.spots)
-    // const spots = Object.values(spotsObj)
-
+    const spotsObj = useSelector(state => state.spots)
+    const spots = Object.values(spotsObj)
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
     }
 
     useEffect(() => {
-        dispatch(reviewActions.getReviews(spotId))
-    }, [dispatch, spotId])
+        const fetchData = async () => {
+            await dispatch(reviewActions.getReviews(spotId));
+            setIsLoaded(true);
+        };
+
+        fetchData();
+    }, [dispatch, spotId]);
 
     useEffect(() => {
         if (reviews) {
@@ -33,17 +38,12 @@ const AReview = () => {
     }, [reviews]);
 
     const userSignedIn = sessionUser ? sessionUser.id : null
-    // const userHasNoReview = userSignedIn ? reviews.some((review) => console.log(review, "Review")) : false
-    const userHasNoReview = userSignedIn ? reviews.some((review) => review.userId === userSignedIn) : false
-    // const userOwnsSpot = userSignedIn ? spots.some((spot) => console.log(spot, 'userOwnsSpot')) : false
-    // const userOwnsSpot = userSignedIn ? spots.some((spot) => spot.ownerId === userSignedIn) : false
-
-    // console.log("userSignedIn:", userSignedIn);
-    // console.log("userOwnsSpot:", userOwnsSpot);
+    const userHasNoReview = !userSignedIn || !reviews.find((review) => review.userId === userSignedIn);
+    const userOwnsSpot = !userSignedIn || !spots.find((spot) => spot.ownerId === userSignedIn);
 
     const sortedReviews = [...reviews].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 
-    if (!reviews) {
+    if (!isLoaded) {
         return (
             <div>LOADING</div>
         )
@@ -54,7 +54,7 @@ const AReview = () => {
                     <div>
                         <strong>New</strong>
                         <div>
-                            {!userHasNoReview && sessionUser && (
+                            {userOwnsSpot && userHasNoReview && sessionUser && (
                                 <OpenModalButton
                                     buttonText='Post Your Review'
                                     modalComponent={<PostReview spotId={spotId}/>}
@@ -76,7 +76,7 @@ const AReview = () => {
                                 ★ {avgStars} • # {reviews.length === 1 ? "1 review" : `${reviews.length} reviews`}
                             </div>
                             <div>
-                                {!userHasNoReview && sessionUser && (
+                                {userOwnsSpot && userHasNoReview && sessionUser && (
                                     <OpenModalButton
                                         buttonText='Post Your Review'
                                         modalComponent={<PostReview spotId={spotId}/>}
@@ -90,13 +90,13 @@ const AReview = () => {
                 <div>
                     {sortedReviews.map((review, index) => (
                         <ul key={index}>
-                            <div>{review.User.firstName}</div>
+                            <div>{review.User?.firstName}</div>
                             <div>{formatDate(review.createdAt)}</div>
                             <div>{review.review}</div>
                             {userSignedIn === review.userId && (
                                 <OpenModalButton
                                     buttonText={'Delete'}
-                                    modalComponent={<DeleteAReview reviewId={review.id} />}
+                                    modalComponent={<DeleteAReview reviewId={review.id}/>}
                                 />
                             )}
                         </ul>

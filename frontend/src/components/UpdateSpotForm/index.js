@@ -25,11 +25,11 @@ const UpdateSpotForm = () => {
     const [description, setDescription] = useState(spot? spot.description : '')
     const [name, setName] = useState(spot ? spot.name : '')
     const [price, setPrice] = useState(spot ? spot.price : 0)
-    const [preview, setPreview] = useState('')
+    const [preview, setPreview] = useState(spot ? (spot.previewImage) : '')
+    const [image1, setImage1] = useState('')
     const [image2, setImage2] = useState('')
     const [image3, setImage3] = useState('')
     const [image4, setImage4] = useState('')
-    const [image1, setImage1] = useState('')
     const [errors, setErrors] = useState({});
     const [submit, setSubmit] = useState(false)
 
@@ -116,12 +116,6 @@ const UpdateSpotForm = () => {
                     await dispatch(spotActions.postImage(+updatedSpot.id, Img4Info))
                 }
             }
-
-            setPreview('')
-            setImage1('')
-            setImage2('')
-            setImage3('')
-            setImage4('')
 
             history.push(`/spots/${spotId}`)
         }
