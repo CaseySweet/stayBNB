@@ -28,7 +28,7 @@ const AReview = () => {
         if (reviews) {
             const totalStars = reviews.reduce((sum, review) => sum + review.stars, 0)
             const average = totalStars / reviews.length
-            setAvgStars(average)
+            setAvgStars(average.toFixed(1))
         }
     }, [reviews]);
 
