@@ -123,7 +123,7 @@ const NewSpotForm = () => {
             setImage4('')
 
 
-            history.push(`/spots/${createdSpot.id}`)
+            // history.push(`/spots/${createdSpot.id}`)
         }
     }
 
