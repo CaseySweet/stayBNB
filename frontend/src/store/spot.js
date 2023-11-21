@@ -45,7 +45,7 @@ const editASpot = (spot) => {
 const deleteASpot = (spot) => {
     return {
         type: DELETE_SPOT,
-        payload: (spot)
+        payload: spot
     }
 }
 
@@ -126,7 +126,7 @@ export const deleteSpot = (spotId) => async (dispatch) => {
 
     if (response.ok) {
         const deletedSpot = await response.json()
-        dispatch(deleteASpot(deletedSpot))
+        dispatch(deleteASpot(spotId))
         return deletedSpot
     }
 }
