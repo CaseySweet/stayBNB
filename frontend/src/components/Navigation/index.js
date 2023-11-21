@@ -3,21 +3,23 @@ import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ProfileButton from './ProfileButton';
 import './Navigation.css';
+import favicon from  './favicon.png'
 
 function Navigation({ isLoaded }) {
     const sessionUser = useSelector(state => state.session.user);
-
     return (
-        <ul>
+        <div className='top-container'>
             <div>
-                <NavLink exact to="/" class='home-link'>staybnb</NavLink>
+                <img src={favicon} alt='Favicon' className='logo' />
+                <NavLink exact to="/" className='home-link'>staybnb</NavLink>
             </div>
             {isLoaded && (
-                <div>
+                <div >
+                    <NavLink to="/spots/new">Create a New Spot</NavLink>
                     <ProfileButton user={sessionUser} />
                 </div>
             )}
-        </ul>
+        </div>
     );
 }
 

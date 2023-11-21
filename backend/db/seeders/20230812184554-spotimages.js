@@ -23,12 +23,12 @@ module.exports = {
     {
       spotId: 3,
       url: 'https://hips.hearstapps.com/hmg-prod/images/best-winter-cabins-1638300737.jpg',
-      preview:false
+      preview:true
     },
     {
       spotId: 4,
       url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTP-8b-Ca88OV9omY8vs2p4uFmbkfp_DPtHyw&usqp=CAU',
-      preview: false
+      preview: true
     },
     {
       spotId: 5,

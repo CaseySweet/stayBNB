@@ -4,11 +4,14 @@ import * as sessionActions from '../../store/session';
 import OpenModalButton from '../OpenModalButton';
 import LoginFormModal from '../LoginFormModal';
 import SignupFormModal from '../SignupFormModal';
+import { useHistory, NavLink } from 'react-router-dom'
+import './Navigation.css';
 
 function ProfileButton({ user }) {
     const dispatch = useDispatch();
     const [showMenu, setShowMenu] = useState(false);
     const ulRef = useRef();
+    const history = useHistory()
 
     const openMenu = () => {
         if (showMenu) return;
@@ -35,13 +38,14 @@ function ProfileButton({ user }) {
         e.preventDefault();
         dispatch(sessionActions.logout());
         closeMenu();
+        history.push('/')
     };
 
     const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
 
     return (
         <>
-            <button onClick={openMenu}>
+            <button onClick={openMenu} className="menu-button">
                 <i className="fas fa-user-circle" />
             </button>
             <ul className={ulClassName} ref={ulRef}>
@@ -50,30 +54,32 @@ function ProfileButton({ user }) {
                 ) :
                     (user ? (
                         <>
-                            <li>{user.username}</li>
-                            <li>{user.firstName} {user.lastName}</li>
-                            <li>{user.email}</li>
-                            <li>
+                            <div>Hello, {user.firstName}</div>
+                            <div>{user.email}</div>
+                            <NavLink to="/spots/current" onClick={closeMenu}>
+                                Manage Spots
+                            </NavLink>
+                            <div>
                                 <button onClick={logout}>Log Out</button>
-                            </li>
+                            </div>
                         </>
                     ) : (
-                        <>
-                            <li>
+                        <div className="login-signup-container">
+                            <div className="login">
                                 <OpenModalButton
                                     buttonText="Log In"
                                     onButtonClick={closeMenu}
                                     modalComponent={<LoginFormModal />}
                                 />
-                            </li>
-                            <li>
+                            </div>
+                            <div className="signup">
                                 <OpenModalButton
                                     buttonText="Sign Up"
                                     onButtonClick={closeMenu}
                                     modalComponent={<SignupFormModal />}
                                 />
-                            </li>
-                        </>
+                            </div>
+                        </div>
                     )
                     )}
             </ul>

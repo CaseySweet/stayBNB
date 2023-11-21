@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     description: DataTypes.STRING,
-    price: DataTypes.INTEGER,
+    price: DataTypes.FLOAT,
     ownerId: {
       type: DataTypes.INTEGER,
       references: {
