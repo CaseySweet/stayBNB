@@ -30,7 +30,8 @@ export const getReviews = (spotId) => async (dispatch) => {
 
     if (response.ok) {
         const reviews = await response.json()
-        dispatch(getAllReview(reviews.Reviews))
+        // console.log(reviews, 'Reviews thunk')
+        dispatch(getAllReview(reviews))
         return reviews
     }
 }
@@ -58,7 +59,7 @@ export const deleteReview = (reviewId) => async (dispatch) => {
 
     if (response.ok) {
         const deletedReview = await response.json()
-        dispatch(deleteAReview(deletedReview))
+        dispatch(deleteAReview(reviewId))
         return deletedReview
     }
 }
@@ -70,17 +71,17 @@ const reviewReducer = (state = initialState, action) => {
     switch (action.type) {
         case GET_REVIEWS:
             newState = Object.assign({}, state);
-            newState.review = action.payload;
+            action.payload.Reviews.forEach((review) => {
+                newState[review.id] = review
+            })
             return newState;
         case POST_REVIEW:
             newState = Object.assign({}, state)
-            console.log(newState, 'Before')
-            newState.review = [...newState.review, action.payload]
-            console.log(newState, 'After')
+            newState[action.payload.id] = action.payload
             return newState;
         case DELETE_REVIEW:
             newState = Object.assign({}, state)
-            newState.review = newState.review.filter(review => review.id !== action.payload.id)
+            delete newState[action.payload]
             return newState
         default:
             return state

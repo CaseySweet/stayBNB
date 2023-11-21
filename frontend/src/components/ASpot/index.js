@@ -11,8 +11,10 @@ const ASpot = () => {
     const [avgStars, setAvgStars] = useState();
     const [isLoaded, setIsLoaded] = useState(false)
     const spots = useSelector(state => state.spots)
-    const reviews = useSelector(state => state.reviews.review)
+    const reviewsObj = useSelector(state => state.reviews)
+    const reviews = Object.values(reviewsObj)
     const spot = spots[spotId]
+    const spotReviews = reviews.filter(review => review.spotId === +spotId)
 
     useEffect(() => {
         dispatch(spotActions.getSpot(spotId))
@@ -24,14 +26,14 @@ const ASpot = () => {
     }, [dispatch, spotId])
 
     useEffect(() => {
-        if (reviews && reviews.length > 0) {
-            const totalStars = reviews.reduce((sum, review) => sum + review.stars, 0);
-            const average = totalStars / reviews.length;
+        if (spotReviews && spotReviews.length > 0) {
+            const totalStars = spotReviews.reduce((sum, review) => sum + review.stars, 0);
+            const average = totalStars / spotReviews.length;
             setAvgStars(average.toFixed(1));
         } else {
             setAvgStars('New')
         }
-    }, [reviews]);
+    }, [spotReviews]);
 
     if (!isLoaded) {
         return (
@@ -54,7 +56,7 @@ const ASpot = () => {
                 </div>
                 <div>
                     <div>${spot.price} night</div>
-                    {avgStars !== 'New' && <div>★ {avgStars} • #{reviews.length} reviews</div>}
+                    {avgStars !== 'New' && <div>★ {avgStars} • # {spotReviews.length} {spotReviews.length === 1 ? 'review' : 'reviews'}</div>}
                     {avgStars === 'New' && <div>{avgStars}</div>}
                     <button onClick={() => alert('Feature coming soon!!')}>Reserve</button>
                 </div>
