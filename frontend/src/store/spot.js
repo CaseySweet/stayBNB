@@ -70,7 +70,7 @@ export const getSpot = (spotId) => async (dispatch) => {
 }
 
 export const postSpot = (spotInfo) => async (dispatch) => {
-    console.log('coming from THUNK', JSON.stringify(spotInfo))
+    // console.log('coming from THUNK', JSON.stringify(spotInfo))
     const newSpot = await csrfFetch('/api/spots', {
         method: 'POST',
         headers: {
