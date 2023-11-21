@@ -107,23 +107,23 @@ const NewSpotForm = () => {
                     await dispatch(spotActions.postImage(createdSpot.id, Img4Info))
                 }
             }
-            setAddress('')
-            setCity('')
-            setState('')
-            setLat(0)
-            setLng(0)
-            setCountry('')
-            setName('')
-            setDescription('')
-            setPrice('')
-            setPreview('')
-            setImage1('')
-            setImage2('')
-            setImage3('')
-            setImage4('')
+            // setAddress('')
+            // setCity('')
+            // setState('')
+            // setLat(0)
+            // setLng(0)
+            // setCountry('')
+            // setName('')
+            // setDescription('')
+            // setPrice('')
+            // setPreview('')
+            // setImage1('')
+            // setImage2('')
+            // setImage3('')
+            // setImage4('')
 
 
-            // history.push(`/spots/${createdSpot.id}`)
+            history.push(`/spots/${createdSpot.id}`)
         }
     }
 
