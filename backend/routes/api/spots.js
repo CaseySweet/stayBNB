@@ -939,7 +939,7 @@ router.post('/spots/', requireAuth, async (req, res) => {
 
         const user = req.user.id
 
-        const spot = await Spot.create({ ownerId: user, address, city, state, country, lat, lng, name, description, price });
+        const spot = await Spot.create({ ownerId: user, address, city, state, country, lat: 0, lng: 0, name, description, price });
         return res.status(201).json(spot)
     } catch (error) {
         res.status(500).json({ error: error.message })
