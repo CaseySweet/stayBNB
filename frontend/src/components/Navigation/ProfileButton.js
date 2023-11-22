@@ -65,15 +65,17 @@ function ProfileButton({ user }) {
                         </>
                     ) : (
                         <div className="login-signup-container">
-                            <div className="login">
+                            <div>
                                 <OpenModalButton
+                                className="login"
                                     buttonText="Log In"
                                     onButtonClick={closeMenu}
                                     modalComponent={<LoginFormModal />}
                                 />
                             </div>
-                            <div className="signup">
+                            <div>
                                 <OpenModalButton
+                            className="signup"
                                     buttonText="Sign Up"
                                     onButtonClick={closeMenu}
                                     modalComponent={<SignupFormModal />}

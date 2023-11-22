@@ -1,0 +1,26 @@
+.spot-reviews{
+    padding-top: 15px;
+}
+
+.bottom-reviews{
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.user-review{
+    font-size: 18px;
+
+}
+
+ul{
+    padding-left: 0;
+}
+
+.date-review{
+    color: lightgray;
+    font-size: 18px;
+}
+
+.actual-review{
+    font-size: 15px;
+}

@@ -1,0 +1,12 @@
+.login-container{
+    width: 350px;
+    height: 300px;
+    text-align: center;
+}
+
+#modal-content{
+    border-radius: 10%;
+    padding-left: 10px;
+    padding-right: 10px;
+
+}

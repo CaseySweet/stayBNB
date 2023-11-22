@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom'
 import OpenModalButton from '../OpenModalButton';
 import PostReview from "../PostReview";
 import DeleteAReview from '../DeleteReview'
+import './AReview.css'
 
 const AReview = () => {
     const dispatch = useDispatch()
@@ -45,7 +46,7 @@ const AReview = () => {
     const userHasNoReview = !userSignedIn || !spotReviews.find((review) => review.userId === userSignedIn);
     const userOwnsSpot = !userSignedIn || userSignedIn !== spotsObj[spotId].ownerId
         return (
-            <div>
+            <div className="spot-reviews">
                 {spotReviews.length === 0 ? (
                     <div>
                         <strong>New</strong>
@@ -68,8 +69,8 @@ const AReview = () => {
                 ) : (
                     <div>
                         <div>
-                            <div>
-                                ★ {avgStars} • # {spotReviews.length === 1 ? "1 review" : `${spotReviews.length} reviews`}
+                            <div className="bottom-reviews">
+                                ★ {avgStars} • {spotReviews.length === 1 ? "1 review" : `${spotReviews.length} reviews`}
                             </div>
                             <div>
                                 {userOwnsSpot && userHasNoReview && sessionUser && (
@@ -86,9 +87,9 @@ const AReview = () => {
                 <div>
                     {sortedReviews.map((review, index) => (
                         <ul key={index}>
-                            <div>{review.User?.firstName}</div>
-                            <div>{formatDate(review.createdAt)}</div>
-                            <div>{review.review}</div>
+                            <div className="user-review">{review.User?.firstName}</div>
+                            <div className="date-review">{formatDate(review.createdAt)}</div>
+                            <div className="actual-review">{review.review}</div>
                             {userSignedIn === review.userId && (
                                 <OpenModalButton
                                     buttonText={'Delete'}
