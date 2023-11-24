@@ -43,10 +43,10 @@ const NewSpotForm = () => {
         if (name.length > 50) errors['name'] = 'Name must be less than 50 characters'
         if (!price) errors['price'] = 'Price is required'
         if (!preview) errors['preview'] = 'Preview image is required.'
-        if (image1 && !(image1.split('.')[image1.split('.').length - 1] === 'png' || image1.split('.')[image1.split('.').length - 1] === 'jpg' || image1.split('.')[image1.split('.').length - 1] === 'jpeg')) errors['image1'] = 'Image URL must end in .png, .jpg, or .jpeg'
-        if (image2 && !(image2.split('.')[image2.split('.').length - 1] === 'png' || image2.split('.')[image2.split('.').length - 1] === 'jpg' || image2.split('.')[image2.split('.').length - 1] === 'jpeg')) errors['image2'] = 'Image URL must end in .png, .jpg, or .jpeg'
-        if (image3 && !(image3.split('.')[image3.split('.').length - 1] === 'png' || image3.split('.')[image3.split('.').length - 1] === 'jpg' || image3.split('.')[image3.split('.').length - 1] === 'jpeg')) errors['image3'] = 'Image URL must end in .png, .jpg, or .jpeg'
-        if (image4 && !(image4.split('.')[image4.split('.').length - 1] === 'png' || image4.split('.')[image4.split('.').length - 1] === 'jpg' || image4.split('.')[image4.split('.').length - 1] === 'jpeg')) errors['image4'] = 'Image URL must end in .png, .jpg, or .jpeg'
+        // if (image1 && !(image1.split('.')[image1.split('.').length - 1] === 'png' || image1.split('.')[image1.split('.').length - 1] === 'jpg' || image1.split('.')[image1.split('.').length - 1] === 'jpeg')) errors['image1'] = 'Image URL must end in .png, .jpg, or .jpeg'
+        // if (image2 && !(image2.split('.')[image2.split('.').length - 1] === 'png' || image2.split('.')[image2.split('.').length - 1] === 'jpg' || image2.split('.')[image2.split('.').length - 1] === 'jpeg')) errors['image2'] = 'Image URL must end in .png, .jpg, or .jpeg'
+        // if (image3 && !(image3.split('.')[image3.split('.').length - 1] === 'png' || image3.split('.')[image3.split('.').length - 1] === 'jpg' || image3.split('.')[image3.split('.').length - 1] === 'jpeg')) errors['image3'] = 'Image URL must end in .png, .jpg, or .jpeg'
+        // if (image4 && !(image4.split('.')[image4.split('.').length - 1] === 'png' || image4.split('.')[image4.split('.').length - 1] === 'jpg' || image4.split('.')[image4.split('.').length - 1] === 'jpeg')) errors['image4'] = 'Image URL must end in .png, .jpg, or .jpeg'
 
         setErrors(errors)
     }, [country, address, city, state, lat, lng, description, name, price, preview, image1, image2, image3, image4])

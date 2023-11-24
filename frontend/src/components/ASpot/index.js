@@ -4,6 +4,7 @@ import * as spotActions from '../../store/spot'
 import { useParams } from 'react-router-dom'
 import AReveiw from "../AReview";
 import * as reviewActions from '../../store/review'
+import './ASpot.css'
 
 const ASpot = () => {
     const dispatch = useDispatch()
@@ -16,9 +17,11 @@ const ASpot = () => {
     const spot = spots[spotId]
     const spotReviews = reviews.filter(review => review.spotId === +spotId)
 
+    // console.log(spot.SpotImages)
+
     useEffect(() => {
         dispatch(spotActions.getSpot(spotId))
-        .then(() => setIsLoaded(true))
+            .then(() => setIsLoaded(true))
     }, [dispatch, spotId])
 
     useEffect(() => {
@@ -42,26 +45,32 @@ const ASpot = () => {
     } else {
 
         return (
-            <div>
+            <div className="whole-spot">
                 <div>
-                    <h1>{spot.name}</h1>
-                    <h2>{spot.city}, {spot.state}, {spot.country}</h2>
+                    <h1 className="spot-name">{spot.name}</h1>
+                    <h2 className="location">{spot.city}, {spot.state}, {spot.country}</h2>
                 </div>
                 <div>
-                    <img src={spot.SpotImages.find(image => image.preview === true).url} alt={spot.name}></img>
+                    <div>
+                    <img className="a-spot-image" src={spot.SpotImages.find(image => image.preview === true).url} alt={spot.name}></img>
+                    </div>
                 </div>
-                <div>
-                    <p>Host by {spot.Owner.firstName} {spot.Owner.lastName}</p>
-                    <p>{spot.description}</p>
+                <div className="description-reserve">
+                    <div>
+                        <p className="hosted">Host by {spot.Owner.firstName} {spot.Owner.lastName}</p>
+                        <p className="description">{spot.description}</p>
+                    </div>
+                    <div className="reserve-box">
+                        <div className="price-reviews">
+                            <div className="price">${spot.price} night</div>
+                            {avgStars !== 'New' && <div className="stars">★ {avgStars} • {spotReviews.length} {spotReviews.length === 1 ? 'review' : 'reviews'}</div>}
+                            {avgStars === 'New' && <div className="stars">{avgStars}</div>}
+                        </div>
+                        <button className="reserve" onClick={() => alert('Feature coming soon!!')}>Reserve</button>
+                    </div>
                 </div>
-                <div>
-                    <div>${spot.price} night</div>
-                    {avgStars !== 'New' && <div>★ {avgStars} • # {spotReviews.length} {spotReviews.length === 1 ? 'review' : 'reviews'}</div>}
-                    {avgStars === 'New' && <div>{avgStars}</div>}
-                    <button onClick={() => alert('Feature coming soon!!')}>Reserve</button>
-                </div>
-                <div>
-                    <AReveiw/>
+                <div className="reviews">
+                    <AReveiw />
                 </div>
             </div>
         )
