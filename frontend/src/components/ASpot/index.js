@@ -17,6 +17,8 @@ const ASpot = () => {
     const spot = spots[spotId]
     const spotReviews = reviews.filter(review => review.spotId === +spotId)
 
+    // console.log(spot.SpotImages)
+
     useEffect(() => {
         dispatch(spotActions.getSpot(spotId))
             .then(() => setIsLoaded(true))
@@ -49,7 +51,9 @@ const ASpot = () => {
                     <h2 className="location">{spot.city}, {spot.state}, {spot.country}</h2>
                 </div>
                 <div>
+                    <div>
                     <img className="a-spot-image" src={spot.SpotImages.find(image => image.preview === true).url} alt={spot.name}></img>
+                    </div>
                 </div>
                 <div className="description-reserve">
                     <div>
@@ -58,9 +62,9 @@ const ASpot = () => {
                     </div>
                     <div className="reserve-box">
                         <div className="price-reviews">
-                        <div className="price">${spot.price} night</div>
-                        {avgStars !== 'New' && <div className="stars">★ {avgStars} • {spotReviews.length} {spotReviews.length === 1 ? 'review' : 'reviews'}</div>}
-                        {avgStars === 'New' && <div className="stars">{avgStars}</div>}
+                            <div className="price">${spot.price} night</div>
+                            {avgStars !== 'New' && <div className="stars">★ {avgStars} • {spotReviews.length} {spotReviews.length === 1 ? 'review' : 'reviews'}</div>}
+                            {avgStars === 'New' && <div className="stars">{avgStars}</div>}
                         </div>
                         <button className="reserve" onClick={() => alert('Feature coming soon!!')}>Reserve</button>
                     </div>
