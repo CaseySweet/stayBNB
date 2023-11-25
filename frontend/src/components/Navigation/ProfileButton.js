@@ -53,21 +53,23 @@ function ProfileButton({ user }) {
                     <></>
                 ) :
                     (user ? (
-                        <>
+                        <div className="logged-user-container">
                             <div>Hello, {user.firstName}</div>
-                            <div>{user.email}</div>
-                            <NavLink to="/spots/current" onClick={closeMenu}>
-                                Manage Spots
-                            </NavLink>
-                            <div>
-                                <button onClick={logout}>Log Out</button>
+                            <div className="user-email-nav">{user.email}</div>
+                            <div className="manage-spots-nav">
+                                <NavLink className="manage-spots-button" to="/spots/current" onClick={closeMenu}>
+                                    Manage Spots
+                                </NavLink>
                             </div>
-                        </>
+                            <div>
+                                <button className="logout-button-nav" onClick={logout}>Log Out</button>
+                            </div>
+                        </div>
                     ) : (
                         <div className="login-signup-container">
                             <div>
                                 <OpenModalButton
-                                className="login"
+                                    className="login"
                                     buttonText="Log In"
                                     onButtonClick={closeMenu}
                                     modalComponent={<LoginFormModal />}
@@ -75,7 +77,7 @@ function ProfileButton({ user }) {
                             </div>
                             <div>
                                 <OpenModalButton
-                            className="signup"
+                                    className="signup"
                                     buttonText="Sign Up"
                                     onButtonClick={closeMenu}
                                     modalComponent={<SignupFormModal />}

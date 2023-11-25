@@ -55,3 +55,32 @@
 .profile-dropdown{
     margin-top: 3px;
 }
+
+.logged-user-container{
+    border: 3px solid black;
+    text-align: center;
+    padding: 4px;
+}
+
+.user-email-nav{
+    border-bottom: 3px solid black;
+    padding-top: 4px;
+    padding-bottom: 6px;
+}
+
+.manage-spots-nav{
+    border-bottom: 3px solid black;
+}
+
+.manage-spots-button{
+    text-decoration: none;
+    color: black;
+}
+
+.logout-button-nav{
+    background-color: #585858;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: 3px;
+}
