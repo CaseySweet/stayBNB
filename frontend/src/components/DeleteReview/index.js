@@ -16,7 +16,7 @@ const DeleteAReview = ({ reviewId }) => {
     }
 
     return (
-        <div>
+        <div className="delete-review-container">
             <h1>Confirm Delete</h1>
             <p>Are you sure you wnat to delete this review?</p>
             <button className="delete-review" onClick={handleDelete}>Yes (Delete Review)</button>

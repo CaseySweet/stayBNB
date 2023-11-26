@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom"
 import * as spotActions from '../../store/spot'
 import './DeleteSpot.css'
 
-const DeleteASpot = ({spotId}) => {
+const DeleteASpot = ({ spotId }) => {
     const dispatch = useDispatch()
     const history = useHistory()
     const { closeModal } = useModal()
@@ -18,11 +18,15 @@ const DeleteASpot = ({spotId}) => {
     }
 
     return (
-        <div>
-        <h1>Confirm Delete</h1>
-        <p>Are you sure you want to remove this spot from the listings?</p>
-        <button className="delete-review" onClick={handleDelete}>Yes (Delete Spot)</button>
-        <button className="keep-review" onClick={() => closeModal()}>No (Keep Spot)</button>
+        <div className="delete-spot-container">
+            <h1>Confirm Delete</h1>
+            <p className="delete-spot-header">Are you sure you want to remove this spot from the listings?</p>
+            <div>
+                <button className="delete-spot" onClick={handleDelete}>Yes (Delete Spot)</button>
+            </div>
+            <div>
+                <button className="keep-spot" onClick={() => closeModal()}>No (Keep Spot)</button>
+            </div>
         </div>
     )
 }

@@ -1,0 +1,28 @@
+.form-container{
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.create-spot-header{
+    font-weight: normal;
+}
+
+.under-create-spot-header{
+    font-size: 16px;
+}
+
+.getting-info{
+    font-size: 14px;
+}
+
+.country-input-box{
+    border: 3px solid black;
+    margin-bottom: 6px;
+}
+
+.create-spot-error-text{
+    color: red;
+}

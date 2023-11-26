@@ -9,8 +9,6 @@ const AllSpots = () => {
     const dispatch = useDispatch()
     const spots = useSelector(state => state.spots)
 
-
-
     useEffect(() => {
         dispatch(spotActions.getSpots())
     }, [dispatch])
