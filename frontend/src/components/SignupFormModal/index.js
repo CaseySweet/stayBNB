@@ -42,74 +42,79 @@ function SignupFormModal() {
     };
 
     return (
-        <>
-            <h1>Sign Up</h1>
+        <div className="signup-container">
+            <h1 className="signup-text">Sign Up</h1>
             <form onSubmit={handleSubmit}>
-                <label>
-                    Email
+                    {errors.email && <p className="signup-error">{errors.email}</p>}
+                    {errors.username && <p className="signup-error">{errors.username}</p>}
+                <div>
                     <input
                         type="text"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        placeholder="Email"
+                        className="signup-input"
                     />
-                </label>
-                {errors.email && <p>{errors.email}</p>}
-                <label>
-                    Username
+                </div>
+                <div>
                     <input
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
+                        placeholder="Username"
+                        className="signup-input"
                     />
-                </label>
-                {errors.username && <p>{errors.username}</p>}
-                <label>
-                    First Name
+                </div>
+                <div>
                     <input
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         required
+                        placeholder="First Name"
+                        className="signup-input"
                     />
-                </label>
+                </div>
                 {errors.firstName && <p>{errors.firstName}</p>}
-                <label>
-                    Last Name
-                    <input
+                <div>                    <input
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         required
+                        placeholder="Last Name"
+                        className="signup-input"
                     />
-                </label>
+                </div>
                 {errors.lastName && <p>{errors.lastName}</p>}
-                <label>
-                    Password
+                <div>
                     <input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        placeholder="Password"
+                        className="signup-input"
                     />
-                </label>
+                </div>
                 {errors.password && <p>{errors.password}</p>}
-                <label>
-                    Confirm Password
+                <div>
                     <input
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
+                        placeholder="Confirm Password"
+                        className="signup-input"
                     />
-                </label>
+                </div>
                 {errors.confirmPassword && (
                     <p>{errors.confirmPassword}</p>
                 )}
-                <button type="submit" disabled={username.length < 4 || password.length < 6 || confirmPassword.length < 6 || !email || !firstName || !lastName}>Sign Up</button>
+                <button className="signup-button-modal" type="submit" disabled={username.length < 4 || password.length < 6 || confirmPassword.length < 6 || !email || !firstName || !lastName}>Sign Up</button>
             </form>
-        </>
+        </div>
     );
 }
 
