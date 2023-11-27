@@ -1,28 +1,205 @@
-.form-container{
+.form-container {
     display: flex;
     flex-direction: column;
     text-align: left;
-    max-width: 500px;
+    max-width: 450px;
     margin: 0 auto;
 }
 
-.create-spot-header{
+.create-spot-header {
     font-weight: normal;
+    margin: 0;
+    margin-top: 20px;
 }
 
-.under-create-spot-header{
+.under-create-spot-header {
     font-size: 16px;
+    margin: 0;
+    margin-top: 20px;
 }
 
-.getting-info{
+.getting-info {
     font-size: 14px;
 }
 
-.country-input-box{
+.country-input-box {
     border: 3px solid black;
     margin-bottom: 6px;
+    width: 100%;
+    background-color: #d8ecf3;
 }
 
-.create-spot-error-text{
+.create-spot-error-text {
     color: red;
+}
+
+.address-input-box {
+    border: 3px solid black;
+    margin-bottom: 6px;
+    width: 100%;
+    background-color: #d8ecf3;
+}
+
+.city-input-box {
+    border: 3px solid black;
+    margin-bottom: 6px;
+    padding-right: 77px;
+    margin-right: 7px;
+    margin-left: 4px;
+    background-color: #d8ecf3;
+}
+
+.state-input-box {
+    border: 3px solid black;
+    margin-bottom: 6px;
+    margin-left: 4px;
+    background-color: #d8ecf3;
+
+}
+
+.lat-input-box {
+    border: 3px solid black;
+    margin-bottom: 6px;
+    margin-right: 7px;
+    margin-left: 4px;
+    /* width: 100%; */
+    padding-right: 10px;
+    background-color: #d8ecf3;
+
+}
+
+.lng-input-box {
+    border: 3px solid black;
+    margin-bottom: 6px;
+    margin-left: 4px;
+    /* width: 100%; */
+    padding-right: 10px;
+    background-color: #d8ecf3;
+
+}
+
+.description-input-box {
+    border: 3px solid black;
+    margin-bottom: 6px;
+    width: 100%;
+    margin-top: 4px;
+    height: 100px;
+    background-color: #d8ecf3;
+
+}
+
+.name-input-box {
+    border: 3px solid black;
+    margin-bottom: 6px;
+    width: 100%;
+    background-color: #d8ecf3;
+
+}
+
+.price-input-box {
+    border: 3px solid black;
+    margin-bottom: 6px;
+    width: 100%;
+    background-color: #d8ecf3;
+
+}
+
+.img-input-box {
+    border: 3px solid black;
+    margin-bottom: 20px;
+    width: 100%;
+    background-color: #d8ecf3;
+
+}
+
+.city-state-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.create-spot-button {
+    background-color: #FF5A5F;
+    margin-top: 10px;
+    color: white;
+    border: 2px solid black;
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 1);
+    margin-left: 40%;
+    margin-bottom: 20px;
+    width: 92px;
+}
+
+.lat-lng-container {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 2px solid black;
+    margin-bottom: 6px;
+    padding-bottom: 10px;
+}
+
+.describe-header {
+    font-size: 20px;
+}
+
+.explain-header {
+    padding: 0;
+    margin: 0;
+    padding-top: 4px;
+    padding-bottom: 8px;
+}
+
+.describe-container {
+    border-bottom: 2px solid black;
+    margin-bottom: 6px;
+    padding-bottom: 10px;
+}
+
+.explain-name{
+    padding: 0;
+    margin: 0;
+    padding-top: 4px;
+    padding-bottom: 8px;
+}
+
+.title-container{
+    border-bottom: 2px solid black;
+    margin-bottom: 6px;
+    padding-bottom: 10px;
+}
+
+.price-container{
+    border-bottom: 2px solid black;
+    margin-bottom: 6px;
+    padding-bottom: 10px;
+}
+
+.explain-price{
+    padding: 0;
+    margin: 0;
+    padding-top: 4px;
+    padding-bottom: 8px;
+}
+
+.title-label{
+    font-size: 20px;
+}
+
+.price-title{
+    font-size: 20px;
+}
+
+.img-title{
+    font-size: 20px;
+}
+
+.explain-img{
+    padding: 0;
+    margin: 0;
+    padding-top: 4px;
+    padding-bottom: 8px;
+}
+
+.img-container{
+    border-bottom: 2px solid black;
+    margin-bottom: 6px;
+    padding-bottom: 10px;
 }
