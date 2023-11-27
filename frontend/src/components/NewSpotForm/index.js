@@ -93,37 +93,38 @@ const NewSpotForm = () => {
                 })
 
             if (createdSpot) {
-                await dispatch(spotActions.postImage(createdSpot.id, previewImgInfo))
+                const newSpotId = +createdSpot.id
+                await dispatch(spotActions.postImage(newSpotId, previewImgInfo))
                 if (image1) {
-                    await dispatch(spotActions.postImage(createdSpot.id, Img1Info))
+                    await dispatch(spotActions.postImage(newSpotId, Img1Info))
                 }
                 if (image2) {
-                    await dispatch(spotActions.postImage(createdSpot.id, Img2Info))
+                    await dispatch(spotActions.postImage(newSpotId, Img2Info))
                 }
                 if (image3) {
-                    await dispatch(spotActions.postImage(createdSpot.id, Img3Info))
+                    await dispatch(spotActions.postImage(newSpotId, Img3Info))
                 }
                 if (image4) {
-                    await dispatch(spotActions.postImage(createdSpot.id, Img4Info))
+                    await dispatch(spotActions.postImage(newSpotId, Img4Info))
                 }
+                setAddress('')
+                setCity('')
+                setState('')
+                setLat(0)
+                setLng(0)
+                setCountry('')
+                setName('')
+                setDescription('')
+                setPrice('')
+                setPreview('')
+                setImage1('')
+                setImage2('')
+                setImage3('')
+                setImage4('')
+
+
+                history.push(`/spots/${newSpotId}`)
             }
-            // setAddress('')
-            // setCity('')
-            // setState('')
-            // setLat(0)
-            // setLng(0)
-            // setCountry('')
-            // setName('')
-            // setDescription('')
-            // setPrice('')
-            // setPreview('')
-            // setImage1('')
-            // setImage2('')
-            // setImage3('')
-            // setImage4('')
-
-
-            // history.push(`/spots/${createdSpot.id}`)
         }
     }
 
