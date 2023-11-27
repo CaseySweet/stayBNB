@@ -108,6 +108,7 @@ const NewSpotForm = () => {
                 }
 
                 // history.push(`/spots/${newSpotId}`)
+
             }
         }
     }
