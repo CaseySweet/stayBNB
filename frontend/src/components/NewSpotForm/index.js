@@ -93,19 +93,18 @@ const NewSpotForm = () => {
                 })
 
             if (createdSpot) {
-                const newSpotId = +createdSpot.id
-                await dispatch(spotActions.postImage(newSpotId, previewImgInfo))
+                await dispatch(spotActions.postImage(createdSpot.id, previewImgInfo))
                 if (image1) {
-                    await dispatch(spotActions.postImage(newSpotId, Img1Info))
+                    await dispatch(spotActions.postImage(createdSpot.id, Img1Info))
                 }
                 if (image2) {
-                    await dispatch(spotActions.postImage(newSpotId, Img2Info))
+                    await dispatch(spotActions.postImage(createdSpot.id, Img2Info))
                 }
                 if (image3) {
-                    await dispatch(spotActions.postImage(newSpotId, Img3Info))
+                    await dispatch(spotActions.postImage(createdSpot.id, Img3Info))
                 }
                 if (image4) {
-                    await dispatch(spotActions.postImage(newSpotId, Img4Info))
+                    await dispatch(spotActions.postImage(createdSpot.id, Img4Info))
                 }
 
                 // history.push(`/spots/${newSpotId}`)
