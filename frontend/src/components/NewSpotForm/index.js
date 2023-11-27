@@ -107,23 +107,8 @@ const NewSpotForm = () => {
                 if (image4) {
                     await dispatch(spotActions.postImage(newSpotId, Img4Info))
                 }
-                setAddress('')
-                setCity('')
-                setState('')
-                setLat(0)
-                setLng(0)
-                setCountry('')
-                setName('')
-                setDescription('')
-                setPrice('')
-                setPreview('')
-                setImage1('')
-                setImage2('')
-                setImage3('')
-                setImage4('')
 
-
-                history.push(`/spots/${newSpotId}`)
+                // history.push(`/spots/${newSpotId}`)
             }
         }
     }
