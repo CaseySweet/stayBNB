@@ -24,3 +24,12 @@ ul{
 .actual-review{
     font-size: 15px;
 }
+
+.post-your-review-button{
+    background-color: #505050;
+    border: 2px solid black;
+    box-shadow: 2px 2px 0px rgba(0,0,0, 1);
+    color: white;
+    margin-top: 15px;
+    margin-right: 10px;
+}
