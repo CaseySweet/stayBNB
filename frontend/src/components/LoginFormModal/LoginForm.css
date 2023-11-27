@@ -1,6 +1,6 @@
 .login-container{
     width: 350px;
-    height: 300px;
+    height: 250px;
     text-align: center;
 }
 
@@ -8,5 +8,39 @@
     border-radius: 10%;
     padding-left: 10px;
     padding-right: 10px;
+}
 
+.login-text{
+    font-weight: 200;
+}
+
+.username-login{
+    border: 3px solid black;
+    margin-bottom: 8px;
+    width: 300px;
+}
+
+.password-login{
+    border: 3px solid black;
+    width: 300px;
+    margin-bottom: 15px;
+}
+
+.login-button-modal{
+    background-color: #FF5A5F;
+    margin-top: 10px;
+    width: 300px;
+    height: 40px;
+    color: white;
+    box-shadow: 3px 3px 0px rgba(0,0,0, 1);
+    margin-bottom: 25px;
+}
+
+.demo-button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #68A2C4;
+    text-decoration: underline;
+    cursor: pointer;
 }

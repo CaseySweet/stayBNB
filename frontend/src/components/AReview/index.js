@@ -53,6 +53,7 @@ const AReview = () => {
                         <div>
                             {userOwnsSpot && userHasNoReview && sessionUser && (
                                 <OpenModalButton
+                                    className={'post-your-review-button'}
                                     buttonText='Post Your Review'
                                     modalComponent={<PostReview spotId={spotId} />}
                                 />
@@ -75,6 +76,7 @@ const AReview = () => {
                             <div>
                                 {userOwnsSpot && userHasNoReview && sessionUser && (
                                     <OpenModalButton
+                                        className={'post-your-review-button'}
                                         buttonText='Post Your Review'
                                         modalComponent={<PostReview spotId={spotId} />}
                                     />
@@ -93,6 +95,7 @@ const AReview = () => {
                             {userSignedIn === review.userId && (
                                 <OpenModalButton
                                     buttonText={'Delete'}
+                                    className={'post-your-review-button'}
                                     modalComponent={<DeleteAReview reviewId={review.id} />}
                                 />
                             )}

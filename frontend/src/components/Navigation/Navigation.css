@@ -4,6 +4,8 @@
     justify-content: space-between;
     border-bottom: 3px solid lightgray;
     margin-top: 12px;
+    position: relative;
+    padding-bottom: 15px;
 }
 
 .home-link {
@@ -32,8 +34,15 @@
 
 .login-signup-container{
     border: 2px solid black;
-    margin-right: 25px;
-    margin-left: 20px;
+    width: 70px;
+    margin-right: 200px;
+    position: relative;
+    right: 75px;
+    background-color: white;
+    padding-right: 40px;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
 .login{
@@ -53,5 +62,36 @@
 }
 
 .profile-dropdown{
+    margin-top: 3px;
+    position: absolute;
+    background-color: white;
+}
+
+.logged-user-container{
+    border: 3px solid black;
+    text-align: center;
+    padding: 4px;
+}
+
+.user-email-nav{
+    border-bottom: 3px solid black;
+    padding-top: 4px;
+    padding-bottom: 6px;
+}
+
+.manage-spots-nav{
+    border-bottom: 3px solid black;
+}
+
+.manage-spots-button{
+    text-decoration: none;
+    color: black;
+}
+
+.logout-button-nav{
+    background-color: #585858;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
     margin-top: 3px;
 }

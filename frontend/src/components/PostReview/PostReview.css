@@ -1,0 +1,33 @@
+.post-review-container{
+    text-align: center;
+    width: 360px;
+    height: 290px;
+}
+
+.post-review-header{
+    padding-top: 12px;
+    font-size: 24px;
+}
+
+.submit-review-button{
+    background-color: #FF5A5F;
+    color: white;
+    width: 100%;
+    border: 2px solid black;
+    box-shadow: 3px 3px 0px rgba(0,0,0, 1);
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: 12px;
+}
+
+.post-review-stars{
+    font-size: 22px;
+}
+
+.input-box{
+    width: 340px;
+    height: 100px;
+    margin-bottom: 12px;
+    border: 2px solid black;
+    background-color: #d8ecf3;
+}
